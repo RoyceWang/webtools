@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style type="text/css">
+*{box-sizing:border-box;}
+body{margin:0;}
+button{padding:1px 3px;}
+table{border-collapse:collapse;}
+table tr th,table tr td{border:1px solid #7f7f7f;padding:2px 5px;}
+ul{margin:0;padding-left:25px;}
+.container{padding:10px 15px;}
+.declare{color:#ff3f3f;font-weight:bold;}
+.remark{color:#3f3f3f;font-family:'新宋体';font-size:0.8rem;}
+.noWrap{white-space:nowrap;word-break:keep-all;}
+.breakWord{overflow-wrap:break-word;}
+.mlt{margin-left:5px;}
+.mls{margin-left:8px;}
+.mlm{margin-left:15px;}
+.mlb{margin-left:30px;}
+.mrt{margin-right:5px;}
+.mrs{margin-right:8px;}
+.mrm{margin-right:15px;}
+.mrb{margin-right:30px;}
+.mtt{margin-top:5px;}
+.mts{margin-top:8px;}
+.mtm{margin-top:15px;}
+.mtb{margin-top:30px;}
+.mbt{margin-bottom:5px;}
+.mbs{margin-bottom:8px;}
+.mbm{margin-bottom:15px;}
+.mbb{margin-bottom:30px;}
+
+table.monoFont th,table.monoFont td:not(.charCell){font-family:monospace;}
+table.monoFont>tbody.notoFont td.charCell{font-family:'Noto Unicode';}
+table.monoFont>tbody.monoFont td.charCell{font-family:monospace;}
+table.bigFont th:not(.capHeader),table.bigFont td{font-size:20px;}
+table.cellCenter th,table.cellCenter td{text-align:center;}
+table.colHeader>tbody>tr>td:first-child{font-weight:bold;}
+table.clickableCell td:not(.nouseCell){cursor:pointer;}
+table.clickableCell td:not(.nouseCell):hover{background-color:lightgreen;}
+table.clickableCell.colHeader td:first-child{cursor:default;}
+table.clickableCell.colHeader td:first-child:hover{background-color:transparent;}
+a.focusHighlight:focus{background-color:yellow;}
+.fixEditorPanel{position:fixed;left:0;top:0;background-color:lightgray;padding:10px;font-size:14px;}
+.fixEditorPanel>.toolbar{display:flex;}
+.fixEditorPanel>.toolbar>fieldset{margin:0;padding:3px;}
+.fixEditorPanel>.toolbar input[type="radio"]{margin:0;vertical-align:middle;}
+.fixEditorPanel>.toolbar label{padding-left:2px;vertical-align:middle;}
+.fixEditorPanel>.editor{height:122px;resize:horizontal;display:block;}
+.toolbarSepa{display:inline-block;width:0;border-left:1px solid gray;margin:0 5px;}
+.popup{position:fixed;padding:5px 15px;z-index:100;border-style:solid;border-width:1px;justify-content:center;align-items:center;}
+</style>
+<script type="text/javascript">
+(()=>{
+
+const _TITLE='Unicode Characters';
+const _AUTHOR='Use MiniCD';
+const _DOWNLOAD='unicode_chars.html';
+const _VER_HIS=[
+  ['1.0','2019-05-04',{html:'初始创建。'}],
+  ['1.1','2021-12-11',{html:'修正Unicode扩展字符显示错误问题。'}],
+  ['1.2','2021-12-11',{html:'增加快捷键。增加字体选项。'}]
+];
+
+const Kit=(()=>{
+  const Excp=function(msg,cause){
+    this.msg=msg;
+    this.cause=cause;
+  };
+  const fcc=String.fromCharCode;
+  const Cls=function(){
+    this.Excp=Excp;
+  };
+  Cls.prototype.empty=function(val){return val==null||val==='';};
+  Cls.prototype.notEmpty=function(val){return !this.empty(val);};
+  Cls.prototype.fcc=fcc;
+  Cls.prototype.byid=function(id){return document.getElementById(id);};
+  Cls.prototype.celmt=function(name){return document.createElement(name);};
+  Cls.prototype.ctext=function(text){return document.createTextNode(text);};
+  Cls.prototype.setText=function(dom,text){
+    dom.innerHTML='';
+    this.notEmpty(text)&&dom.appendChild(this.ctext(text));
+  };
+  Cls.prototype.excp=function(msg,cause){return new Excp(msg,cause);};
+  Cls.prototype.preProm=function(exec){return ()=>new Promise(exec);};
+  Cls.prototype.serial=function(prePms){
+    return async()=>{
+      let ret=[];
+      for(prePm of prePms){
+        ret.push(await prePm());
+      }
+      return ret;
+    };
+  };
+  Cls.prototype.parallel=function(prePms){return ()=>Promise.all(prePms.map(prePm=>prePm()));};
+  Cls.prototype.lpad=function(str,pad,len){
+    while(str.length<len){
+      str=pad+str;
+    }
+    return str.substring(str.length-len);
+  };
+  Cls.prototype.rpad=function(str,pad,len){
+    while(str.length<len){
+      str+=pad;
+    }
+    return str.substring(0,len);
+  };
+  Cls.prototype.utf8En=function(text){
+    let code='';
+    for(let i=0;i<text.length;i++){
+      const c=text.charCodeAt(i);
+      code+=c<0x80?fcc(c):c<0x800?(fcc((c>>>6)|0xC0)+fcc(c&0x3F|0x80)):(fcc((c>>>12)|0xE0)+fcc((c>>>6)&0x3F|0x80)+fcc(c&0x3F|0x80));
+    }
+    return code;
+  };
+  Cls.prototype.utf8De=function(code){
+    let text='';
+    for(let i=0;i<code.length;i++){
+      const c=code.charCodeAt(i);
+      text+=c<0x80?fcc(c):c<0xE0?fcc(((c&0x1F)<<6)|(code.charCodeAt(++i)&0x3F)):fcc(((c&0x0F)<<12)|((code.charCodeAt(++i)&0x3F)<<6)|(code.charCodeAt(++i)&0x3F));
+    }
+    return text;
+  };
+  Cls.prototype.loadFile=function(load,emsg){
+    const that=this;
+    return that.preProm((ok,err)=>{
+      try{
+        const r=new FileReader();
+        r.onloadend=e=>{
+          if(e.target.error){
+            err(that.excp(emsg,e.target.error));
+          }else{
+            ok(e.target.result);
+          }
+        };
+        load(r);
+      }catch(t){
+        err(that.excp(emsg,t));
+      }
+    });
+  };
+  Cls.prototype.loadAsUrl=function(file,emsg){return this.loadFile(r=>r.readAsDataURL(file),emsg);};
+  Cls.prototype.loadAsBuff=function(file,emsg){return this.loadFile(r=>r.readAsArrayBuffer(file),emsg);};
+  return new Cls();
+})();
+
+const VerHis=(kit=>{
+  let _data=null;
+  const Cls=function(){};
+  // data format:
+  // {
+  //   cols: {
+  //     titles: ['Col 1','Col 2','Col 3'],
+  //     thClses: ['alignCenter','',''],
+  //     tdClses: ['nowrap','nowrap','']
+  //   },
+  //   rows: {
+  //     rowData: [
+  //       ['Key 1','Date 1','Comments 1'],
+  //       ['Key 2','Date 2','Comments 2'],
+  //       ['Key 3','Date 3',{html:'Comments 3-1<br/>Comments 3-2'}]
+  //     ],
+  //     trClses: ['even','odd','even']
+  //   }
+  // }
+  Cls.prototype.init=function(tbl,data){
+    _data=data;
+    tbl.innerHTML='';
+    if(!(data&&data.cols&&data.cols.titles&&data.cols.titles.length>0)){
+      return;
+    }
+    const thead=kit.celmt('thead');
+    const tr=kit.celmt('tr');
+    data.cols.titles.forEach((title,c)=>{
+      const th=kit.celmt('th');
+      kit.notEmpty(title)&&kit.setText(th,title);
+      data.cols.thClses&&kit.notEmpty(data.cols.thClses[c])&&(th.className=data.cols.thClses[c]);
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    tbl.appendChild(thead);
+    const tbody=kit.celmt('tbody');
+    data.rows&&data.rows.rowData&&data.rows.rowData.forEach((ctnts,r)=>{
+      const tr=kit.celmt('tr');
+      ctnts&&ctnts.forEach((ctnt,c)=>{
+        const td=kit.celmt('td');
+        kit.notEmpty(ctnt)&&(typeof ctnt==='string'?kit.setText(td,ctnt):(ctnt.html&&(td.innerHTML=ctnt.html)));
+        data.cols.tdClses&&kit.notEmpty(data.cols.tdClses[c])&&(td.className=data.cols.tdClses[c]);
+        tr.appendChild(td);
+      });
+      data.rows.trClses&&kit.notEmpty(data.rows.trClses[r])&&(tr.className=data.rows.trClses[r]);
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+  };
+  Cls.prototype.getCtnt=function(r,c){
+    return _data&&_data.rows&&_data.rows.rowData&&_data.rows.rowData[r]&&_data.rows.rowData[r][c];
+  };
+  return new Cls();
+})(Kit);
+
+const DOM={};
+const initDom=dom=>document.body.querySelectorAll('*').forEach(e=>e.id&&(dom[e.id]=e));
+const initSaveMe=htmlCtnt=>{
+  DOM.saveMe.href=URL.createObjectURL(new Blob([htmlCtnt],{type:'text/html'}));
+  DOM.saveMe.download=_DOWNLOAD;
+  Kit.setText(DOM.saveMe,'保存'+_TITLE);
+};
+const initBaseInfo=()=>{
+  VerHis.init(DOM.verHis,{
+    cols:{titles:['版本','日期','备注'],tdClses:['noWrap','noWrap','wordWrap']},
+    rows:{rowData:_VER_HIS}
+  });
+  const title=_TITLE+' '+VerHis.getCtnt(_VER_HIS.length-1,0);
+  document.title=title;
+  Kit.setText(DOM.title,title);
+  Kit.setText(DOM.author,'by: '+_AUTHOR);
+};
+
+window.onload=()=>{
+  const _selfHtml='<!DOCTYPE '+'html>'+document.documentElement.outerHTML;
+  initDom(DOM);
+  initSaveMe(_selfHtml);
+  initBaseInfo();
+  init();
+};
+
+// ========= custom codes
+const init=()=>{
+  initUnicodeBlocks();
+  initAction();
+  initHotKeys();
+  applyDefFont();
+  adjustBodyPaddingTop();
+  setTimeout(()=>window.scrollTo(0,0),0);
+};
+const Toast=(kit=>{
+  let attach=false;
+  let _delay=null;
+  const _box=kit.celmt('div');
+  _box.className='popup';
+  _box.style.display='none';
+  _box.addEventListener('click',e=>close());
+  const close=()=>{
+    _delay&&clearTimeout(_delay);
+    _delay=null;
+    _box.style.display='none';
+    _box.innerHTML='';
+  };
+  const Cls=function(){};
+  Cls.prototype.show=function(msg,type,position,delay){
+    if(!attach){
+      document.body.appendChild(_box);
+      attach=true;
+    }
+    this.close();
+    _box.appendChild(kit.ctext(msg));
+    _box.style.backgroundColor=type==='error'?'pink':type==='warn'?'yellow':type==='success'?'lightgreen':'lightblue';
+    _box.style.borderColor=type==='error'?'red':type==='warn'?'orange':type==='success'?'green':'blue';
+    _box.style.borderStyle='solid';
+    _box.style.borderWidth='1px';
+    if(position){
+      _box.style.top=position.top;
+      _box.style.left=position.left;
+    }
+    _box.style.display='inline-flex';
+    if(!delay){
+      delay=1500;
+    }
+    if(delay>=0){
+      _delay=setTimeout(this.close,delay);
+    }
+  };
+  Cls.prototype.close=function(){
+    close();
+  };
+  return new Cls();
+})(Kit);
+const HotKey=((kit)=>{
+  let _map=null;
+  const Cls=function(){};
+  Cls.prototype.reg=function(key,dom,handler){
+    if(!_map){
+      _map={};
+      document.addEventListener('keypress',e=>{
+        console.log(e.keyCode);
+        const handler=_map[e.keyCode];
+        handler&&handler();
+      });
+    }
+    _map[key.charCodeAt(0)]=handler;
+    kit.setText(dom,dom.innerHTML+'['+key.charAt(0)+']');
+  };
+  Cls.prototype.ignoreOn=function(doms){
+    doms.forEach(dom=>dom.addEventListener('keypress',e=>e.stopPropagation()));
+  };
+  return new Cls();
+})(Kit);
+
+const adjustBodyPaddingTop=()=>document.body.style.paddingTop=(getBodyTopVal()-parseInt(getComputedStyle(document.body).marginTop.replace('px','')))+'px';
+const getBodyTopVal=()=>DOM.editorPanel.getBoundingClientRect().bottom;
+const initUnicodeBlocks=()=>{
+  _BLOCKS.forEach((block,idx)=>{
+    const tr=Kit.celmt('tr');
+    const rangeTd=Kit.celmt('td');
+    const viewLink=Kit.celmt('a');
+    const startText=Kit.lpad(block.start.toString(16).toUpperCase(),'0',6);
+    const endText=Kit.lpad(block.end.toString(16).toUpperCase(),'0',6);
+    const nameText=block.name+' ('+block.nameCn+')';
+    viewLink.href='javascript:;';
+    viewLink.addEventListener('click',e=>viewBlock(block,idx));
+    viewLink.appendChild(Kit.ctext(startText+'-'+endText));
+    viewLink.className='focusHighlight';
+    rangeTd.appendChild(viewLink);
+    const nameTd=Kit.celmt('td');
+    nameTd.appendChild(Kit.ctext(nameText));
+    tr.appendChild(rangeTd);
+    tr.appendChild(nameTd);
+    DOM.blocksBody.appendChild(tr);
+  });
+};
+const viewBlock=(block,idx)=>{
+  resetViewBlockTbl();
+  DOM.idxHide.value=idx;
+  const capTr=Kit.celmt('tr');
+  const capTh=Kit.celmt('th');
+  capTh.className='capHeader';
+  capTh.colSpan='17';
+  const capText=Kit.celmt('h3');
+  capText.appendChild(Kit.ctext(block.name));
+  capText.appendChild(Kit.celmt('br'));
+  capText.appendChild(Kit.ctext(block.nameCn));
+  capTh.appendChild(capText);
+  capTr.appendChild(capTh);
+  const headerTr=Kit.celmt('tr');
+  const preTh=Kit.celmt('th');
+  headerTr.appendChild(preTh);
+  for(let c=0;c<0x10;c++){
+    const th=Kit.celmt('th');
+    th.appendChild(Kit.ctext(c.toString(16).toUpperCase()));
+    headerTr.appendChild(th);
+  }
+  DOM.viewBlockHeader.appendChild(capTr);
+  DOM.viewBlockHeader.appendChild(headerTr);
+  const startRow=block.start>>4;
+  const endRow=(block.end>>4)+1;
+  for(let r=startRow;r<endRow;r++){
+    const tr=Kit.celmt('tr');
+    const preTd=Kit.celmt('td');
+    preTd.appendChild(Kit.ctext(Kit.lpad(r.toString(16).toUpperCase(),'0',5)+'_'));
+    tr.appendChild(preTd);
+    for(let c=0;c<0x10;c++){
+      const ucode=(r<<4)+c;
+      const td=Kit.celmt('td');
+      if(ucode<block.start||ucode>block.end){
+        td.className='charCell nouseCell';
+      }else{
+        td.className='charCell';
+        var text='';
+        if(ucode<0x10000){
+          text=Kit.fcc(ucode);
+        }else{
+          const offset=ucode-0x10000;
+          const highCode=(offset>>>10)&0x3FF|0xD800;
+          const lowCode=offset&0x3FF|0xDC00;
+          text=Kit.fcc(highCode,lowCode);
+        }
+        td.appendChild(Kit.ctext(text));
+        td.title='0x'+Kit.lpad(ucode.toString(16).toUpperCase(),'0',6);
+        td.addEventListener('click',clickCell);
+      }
+      tr.appendChild(td);
+    }
+    DOM.viewBlockBody.appendChild(tr);
+  }
+  DOM.viewBlockPanel.style.display='block';
+  DOM.blocksTbl.style.display='none';
+  DOM.backBtnSepa.style.display='inline-block';
+  DOM.fontToolbar.style.display='inline-block';
+  DOM.backBtn.style.display='inline';
+  DOM.backBtn.focus();
+  adjustBodyPaddingTop();
+  window.scrollTo(0,0);
+};
+const resetViewBlockTbl=()=>{
+  DOM.viewBlockHeader.innerHTML='';
+  DOM.viewBlockBody.innerHTML='';
+};
+const clickCell=e=>{
+  const c=e.target.textContent;
+  DOM.editor.focus();
+  const cursorStart=DOM.editor.selectionStart;
+  const newCursor=cursorStart+c.length;
+  DOM.editor.value=DOM.editor.value.substring(0,cursorStart)+c+DOM.editor.value.substring(DOM.editor.selectionEnd);
+  DOM.editor.selectionStart=newCursor;
+  DOM.editor.selectionEnd=newCursor;
+};
+const initAction=()=>{
+  DOM.copyBtn.addEventListener('click',e=>{
+    const position={top:e.clientY+'px',left:e.clientX+'px'};
+    const val=DOM.editor.value;
+    if(val){
+      navigator.clipboard.writeText(val).then(()=>Toast.show('内容已复制到剪贴板.','success',position),err=>{
+        console.error(err);
+        Toast.show('复制内容到剪贴板失败.','error',position);
+      });
+    }else{
+      Toast.show('无内容','warn',position);
+    }
+  });
+  DOM.clearBtn.addEventListener('click',e=>DOM.editor.value='');
+  DOM.backBtn.addEventListener('click',backToBlockTbl);
+  DOM.fontSys.addEventListener('click',switchFont);
+  DOM.fontMono.addEventListener('click',switchFont);
+  DOM.fontNoto.addEventListener('click',switchFont);
+};
+const backToBlockTbl=()=>{
+  const idx=parseInt(DOM.idxHide.value);
+  DOM.blocksTbl.style.display='block';
+  DOM.viewBlockPanel.style.display='none';
+  DOM.backBtnSepa.style.display='none';
+  DOM.fontToolbar.style.display='none';
+  DOM.backBtn.style.display='none';
+  adjustBodyPaddingTop();
+  if(idx>=0&&DOM.blocksBody.children[idx]){
+    DOM.blocksBody.children[idx].children[0].children[0].focus();
+    const verOffset=DOM.blocksBody.children[idx].getBoundingClientRect().top-getBodyTopVal();
+    window.scrollBy(0,verOffset);
+  }
+};
+const switchFont=e=>{
+  if(e.target.value){
+    DOM.viewBlockBody.className=e.target.value+'Font';
+  }else{
+    DOM.viewBlockBody.removeAttribute('class');
+  }
+};
+const initHotKeys=()=>{
+  HotKey.reg('c',DOM.copyBtn,()=>DOM.copyBtn.click());
+  HotKey.reg('z',DOM.clearBtn,()=>DOM.clearBtn.click());
+  HotKey.reg('q',DOM.backBtn,()=>DOM.backBtn.click());
+  HotKey.reg('a',DOM.fontSysLbl,()=>DOM.fontSys.click());
+  HotKey.reg('s',DOM.fontMonoLbl,()=>DOM.fontMono.click());
+  HotKey.reg('d',DOM.fontNotoLbl,()=>DOM.fontNoto.click());
+  HotKey.ignoreOn([DOM.editor]);
+};
+const applyDefFont=()=>{
+  DOM.fontSys.click();
+};
+const _BLOCKS=[
+  {start:0x000000,end:0x00007F,name:'Basic Latin',nameCn:'基本拉丁文'},
+  {start:0x000080,end:0x0000FF,name:'Latin-1 Supplement',nameCn:'拉丁文-1补充'},
+  {start:0x000100,end:0x00017F,name:'Latin Extended-A',nameCn:'拉丁文扩展-A'},
+  {start:0x000180,end:0x00024F,name:'Latin Extended-B',nameCn:'拉丁文扩展-B'},
+  {start:0x000250,end:0x0002AF,name:'IPA Extensions',nameCn:'国际音标扩展'},
+  {start:0x0002B0,end:0x0002FF,name:'Spacing Modifier Letters',nameCn:'占位修饰符号'},
+  {start:0x000300,end:0x00036F,name:'Combining Diacritics Marks',nameCn:'结合附加符号'},
+  {start:0x000370,end:0x0003FF,name:'Greek and Coptic',nameCn:'希腊字母及科普特字母'},
+  {start:0x000400,end:0x0004FF,name:'Cyrillic',nameCn:'西里尔字母'},
+  {start:0x000500,end:0x00052F,name:'Cyrillic Supplement',nameCn:'西里尔字母补充'},
+  {start:0x000530,end:0x00058F,name:'Armenian',nameCn:'亚美尼亚字母'},
+  {start:0x000590,end:0x0005FF,name:'Hebrew',nameCn:'希伯来文'},
+  {start:0x000600,end:0x0006FF,name:'Arabic',nameCn:'阿拉伯文'},
+  {start:0x000700,end:0x00074F,name:'Syriac',nameCn:'叙利亚文'},
+  {start:0x000750,end:0x00077F,name:'Arabic Supplement',nameCn:'阿拉伯文补充'},
+  {start:0x000780,end:0x0007BF,name:'Thaana',nameCn:'它拿字母'},
+  {start:0x0007C0,end:0x0007FF,name:'N\'Ko',nameCn:'西非书面文字'},
+  {start:0x000800,end:0x00083F,name:'Samaritan',nameCn:'撒玛利亚字母'},
+  {start:0x000840,end:0x00085F,name:'Mandaic',nameCn:'曼达文字'},
+  {start:0x000860,end:0x00086F,name:'Syriac Supplement',nameCn:'叙利亚文补充'},
+  {start:0x0008A0,end:0x0008FF,name:'Arabic Extended-A',nameCn:'阿拉伯文扩展-A'},
+  {start:0x000900,end:0x00097F,name:'Devanagari',nameCn:'天城文'},
+  {start:0x000980,end:0x0009FF,name:'Bengali',nameCn:'孟加拉文'},
+  {start:0x000A00,end:0x000A7F,name:'Gurmukhi',nameCn:'古木基文'},
+  {start:0x000A80,end:0x000AFF,name:'Gujarati',nameCn:'古吉拉特文'},
+  {start:0x000B00,end:0x000B7F,name:'Oriya',nameCn:'奥里亚文'},
+  {start:0x000B80,end:0x000BFF,name:'Tamil',nameCn:'泰米尔文'},
+  {start:0x000C00,end:0x000C7F,name:'Telugu',nameCn:'泰卢固文'},
+  {start:0x000C80,end:0x000CFF,name:'Kannada',nameCn:'卡纳达文'},
+  {start:0x000D00,end:0x000D7F,name:'Malayalam',nameCn:'马拉雅拉姆文'},
+  {start:0x000D80,end:0x000DFF,name:'Sinhala',nameCn:'僧伽罗文'},
+  {start:0x000E00,end:0x000E7F,name:'Thai',nameCn:'泰文'},
+  {start:0x000E80,end:0x000EFF,name:'Lao',nameCn:'老挝文'},
+  {start:0x000F00,end:0x000FFF,name:'Tibetan',nameCn:'藏文'},
+  {start:0x001000,end:0x00109F,name:'Myanmar',nameCn:'缅甸文'},
+  {start:0x0010A0,end:0x0010FF,name:'Georgian',nameCn:'格鲁吉亚字母'},
+  {start:0x001100,end:0x0011FF,name:'Hangul Jamo',nameCn:'谚文字母'},
+  {start:0x001200,end:0x00137F,name:'Ethiopic',nameCn:'吉兹字母'},
+  {start:0x001380,end:0x00139F,name:'Ethiopic Supplement',nameCn:'吉兹字母补充'},
+  {start:0x0013A0,end:0x0013FF,name:'Cherokee',nameCn:'切罗基字母'},
+  {start:0x001400,end:0x00167F,name:'Unified Canadian Aboriginal Syllabics',nameCn:'统一加拿大原住民音节文字'},
+  {start:0x001680,end:0x00169F,name:'Ogham',nameCn:'欧甘字母'},
+  {start:0x0016A0,end:0x0016FF,name:'Runic',nameCn:'卢恩字母'},
+  {start:0x001700,end:0x00171F,name:'Tagalog',nameCn:'他加禄字母'},
+  {start:0x001720,end:0x00173F,name:'Hanunóo',nameCn:'哈努诺文'},
+  {start:0x001740,end:0x00175F,name:'Buhid',nameCn:'布希德文'},
+  {start:0x001760,end:0x00177F,name:'Tagbanwa',nameCn:'塔格班瓦文'},
+  {start:0x001780,end:0x0017FF,name:'Khmer',nameCn:'高棉文'},
+  {start:0x001800,end:0x0018AF,name:'Mongolian',nameCn:'蒙古文'},
+  {start:0x0018B0,end:0x0018FF,name:'Unified Canadian Aboriginal Syllabics Extended',nameCn:'加拿大原住民音节文字扩展'},
+  {start:0x001900,end:0x00194F,name:'Limbu',nameCn:'林布文'},
+  {start:0x001950,end:0x00197F,name:'Tai Le',nameCn:'德宏傣文'},
+  {start:0x001980,end:0x0019DF,name:'New Tai Lue',nameCn:'新傣仂文'},
+  {start:0x0019E0,end:0x0019FF,name:'Khmer Symbols',nameCn:'高棉文符号'},
+  {start:0x001A00,end:0x001A1F,name:'Buginese',nameCn:'布吉文'},
+  {start:0x001A20,end:0x001AAF,name:'Tai Tham',nameCn:'老傣文'},
+  {start:0x001AB0,end:0x001AFF,name:'Combining Diacritical Marks Extended',nameCn:'组合变音标记扩展'},
+  {start:0x001B00,end:0x001B7F,name:'Balinese',nameCn:'巴厘字母'},
+  {start:0x001B80,end:0x001BBF,name:'Sundanese',nameCn:'巽他字母'},
+  {start:0x001BC0,end:0x001BFF,name:'Batak',nameCn:'巴塔克文'},
+  {start:0x001C00,end:0x001C4F,name:'Lepcha',nameCn:'雷布查字母'},
+  {start:0x001C50,end:0x001C7F,name:'Ol Chiki',nameCn:'桑塔利文'},
+  {start:0x001C80,end:0x001C8F,name:'Cyrillic Extended-C',nameCn:'西里尔字母扩充-C'},
+  {start:0x001C90,end:0x001CBF,name:'Georgian Extended',nameCn:'格鲁吉亚字母扩展'},
+  {start:0x001CC0,end:0x001CCF,name:'Sudanese Supplement',nameCn:'巽他字母补充'},
+  {start:0x001CD0,end:0x001CFF,name:'Vedic Extensions',nameCn:'梵文吠陀扩展'},
+  {start:0x001D00,end:0x001D7F,name:'Phonetic Extensions',nameCn:'音标扩展'},
+  {start:0x001D80,end:0x001DBF,name:'Phonetic Extensions Supplement',nameCn:'音标扩展补充'},
+  {start:0x001DC0,end:0x001DFF,name:'Combining Diacritics Marks Supplement',nameCn:'结合附加符号补充'},
+  {start:0x001E00,end:0x001EFF,name:'Latin Extended Additional',nameCn:'拉丁文扩展附加'},
+  {start:0x001F00,end:0x001FFF,name:'Greek Extended',nameCn:'希腊文扩展'},
+  {start:0x002000,end:0x00206F,name:'General Punctuation',nameCn:'常用标点'},
+  {start:0x002070,end:0x00209F,name:'Superscripts and Subscripts',nameCn:'上标及下标'},
+  {start:0x0020A0,end:0x0020CF,name:'Currency Symbols',nameCn:'货币符号'},
+  {start:0x0020D0,end:0x0020FF,name:'Combining Diacritics Marks for Symbols',nameCn:'组合用记号'},
+  {start:0x002100,end:0x00214F,name:'Letterlike Symbols',nameCn:'字母式符号'},
+  {start:0x002150,end:0x00218F,name:'Number Forms',nameCn:'数字形式'},
+  {start:0x002190,end:0x0021FF,name:'Arrows',nameCn:'箭头'},
+  {start:0x002200,end:0x0022FF,name:'Mathematical Operators',nameCn:'数学运算符'},
+  {start:0x002300,end:0x0023FF,name:'Miscellaneous Technical',nameCn:'杂项工业符号'},
+  {start:0x002400,end:0x00243F,name:'Control Pictures',nameCn:'控制图片'},
+  {start:0x002440,end:0x00245F,name:'Optical Character Recognition',nameCn:'光学识别符'},
+  {start:0x002460,end:0x0024FF,name:'Enclosed Alphanumerics',nameCn:'带圈字母和数字'},
+  {start:0x002500,end:0x00257F,name:'Box Drawing',nameCn:'制表符'},
+  {start:0x002580,end:0x00259F,name:'Block Elements',nameCn:'方块元素'},
+  {start:0x0025A0,end:0x0025FF,name:'Geometric Shapes',nameCn:'几何图形'},
+  {start:0x002600,end:0x0026FF,name:'Miscellaneous Symbols',nameCn:'杂项符号'},
+  {start:0x002700,end:0x0027BF,name:'Dingbats',nameCn:'装饰符号'},
+  {start:0x0027C0,end:0x0027EF,name:'Miscellaneous Mathematical Symbols-A',nameCn:'杂项数学符号-A'},
+  {start:0x0027F0,end:0x0027FF,name:'Supplemental Arrows-A',nameCn:'追加箭头-A'},
+  {start:0x002800,end:0x0028FF,name:'Braille Patterns',nameCn:'盲文点字模型'},
+  {start:0x002900,end:0x00297F,name:'Supplemental Arrows-B',nameCn:'追加箭头-B'},
+  {start:0x002980,end:0x0029FF,name:'Miscellaneous Mathematical Symbols-B',nameCn:'杂项数学符号-B'},
+  {start:0x002A00,end:0x002AFF,name:'Supplemental Mathematical Operator',nameCn:'追加数学运算符'},
+  {start:0x002B00,end:0x002BFF,name:'Miscellaneous Symbols and Arrows',nameCn:'杂项符号和箭头'},
+  {start:0x002C00,end:0x002C5F,name:'Glagolitic',nameCn:'格拉哥里字母'},
+  {start:0x002C60,end:0x002C7F,name:'Latin Extended-C',nameCn:'拉丁文扩展-C'},
+  {start:0x002C80,end:0x002CFF,name:'Coptic',nameCn:'科普特字母'},
+  {start:0x002D00,end:0x002D2F,name:'Georgian Supplement',nameCn:'格鲁吉亚字母补充'},
+  {start:0x002D30,end:0x002D7F,name:'Tifinagh',nameCn:'提非纳文'},
+  {start:0x002D80,end:0x002DDF,name:'Ethiopic Extended',nameCn:'吉兹字母扩展'},
+  {start:0x002DE0,end:0x002DFF,name:'Cyrillic Extended-A',nameCn:'西里尔字母扩展-A'},
+  {start:0x002E00,end:0x002E7F,name:'Supplemental Punctuation',nameCn:'追加标点'},
+  {start:0x002E80,end:0x002EFF,name:'CJK Radicals Supplement',nameCn:'中日韩汉字部首补充'},
+  {start:0x002F00,end:0x002FDF,name:'Kangxi Radicals',nameCn:'康熙部首'},
+  {start:0x002FF0,end:0x002FFF,name:'Ideographic Description Characters',nameCn:'表意文字序列'},
+  {start:0x003000,end:0x00303F,name:'CJK Symbols and Punctuation',nameCn:'中日韩符号和标点'},
+  {start:0x003040,end:0x00309F,name:'Hiragana',nameCn:'日文平假名'},
+  {start:0x0030A0,end:0x0030FF,name:'Katakana',nameCn:'日文片假名'},
+  {start:0x003100,end:0x00312F,name:'Bopomofo',nameCn:'注音符号'},
+  {start:0x003130,end:0x00318F,name:'Hangul Compatibility Jamo',nameCn:'谚文兼容字母'},
+  {start:0x003190,end:0x00319F,name:'Kanbun',nameCn:'汉文注释标志'},
+  {start:0x0031A0,end:0x0031BF,name:'Bopomofo Extended',nameCn:'注音字母扩展'},
+  {start:0x0031C0,end:0x0031EF,name:'CJK Strokes',nameCn:'中日韩笔画'},
+  {start:0x0031F0,end:0x0031FF,name:'Katakana Phonetic Extensions',nameCn:'日文片假名拼音扩展'},
+  {start:0x003200,end:0x0032FF,name:'Enclosed CJK Letters and Months',nameCn:'带圈的CJK字符及月份'},
+  {start:0x003300,end:0x0033FF,name:'CJK Compatibility',nameCn:'中日韩兼容字符'},
+  {start:0x003400,end:0x004DBF,name:'CJK Unified Ideographs Extension A',nameCn:'中日韩统一表意文字扩展区A'},
+  {start:0x004DC0,end:0x004DFF,name:'Yijing Hexagrams Symbols',nameCn:'易经六十四卦符号'},
+  {start:0x004E00,end:0x009FFF,name:'CJK Unified Ideographs',nameCn:'中日韩统一表意文字'},
+  {start:0x00A000,end:0x00A48F,name:'Yi Syllables',nameCn:'彝文音节'},
+  {start:0x00A490,end:0x00A4CF,name:'Yi Radicals',nameCn:'彝文字根'},
+  {start:0x00A4D0,end:0x00A4FF,name:'Lisu',nameCn:'老傈僳文'},
+  {start:0x00A500,end:0x00A63F,name:'Vai',nameCn:'瓦伊语'},
+  {start:0x00A640,end:0x00A69F,name:'Cyrillic Extended-B',nameCn:'西里尔字母扩展-B'},
+  {start:0x00A6A0,end:0x00A6FF,name:'Bamum',nameCn:'巴姆穆文字'},
+  {start:0x00A700,end:0x00A71F,name:'Modifier Tone Letters',nameCn:'声调修饰符号'},
+  {start:0x00A720,end:0x00A7FF,name:'Latin Extended-D',nameCn:'拉丁文扩展-D'},
+  {start:0x00A800,end:0x00A82F,name:'Syloti Nagri',nameCn:'锡尔赫特文'},
+  {start:0x00A830,end:0x00A83F,name:'Common Indic Number Forms',nameCn:'通用印度数字格式'},
+  {start:0x00A840,end:0x00A87F,name:'Phags-pa',nameCn:'八思巴字'},
+  {start:0x00A880,end:0x00A8DF,name:'Saurashtra',nameCn:'索拉什特拉文'},
+  {start:0x00A8E0,end:0x00A8FF,name:'Devanagari Extended',nameCn:'天城文扩展'},
+  {start:0x00A900,end:0x00A92F,name:'Kayah Li',nameCn:'克耶里字母'},
+  {start:0x00A930,end:0x00A95F,name:'Rejang',nameCn:'勒姜字母'},
+  {start:0x00A960,end:0x00A97F,name:'Hangul Jamo Extended-A',nameCn:'谚文扩展-A'},
+  {start:0x00A980,end:0x00A9DF,name:'Javanese',nameCn:'爪哇字母'},
+  {start:0x00A9E0,end:0x00A9FF,name:'Myanmar Extended-B',nameCn:'缅甸文扩展-B'},
+  {start:0x00AA00,end:0x00AA5F,name:'Cham',nameCn:'占语字母'},
+  {start:0x00AA60,end:0x00AA7F,name:'Myanmar Extended-A',nameCn:'缅甸文扩展-A'},
+  {start:0x00AA80,end:0x00AADF,name:'Tai Viet',nameCn:'越南傣文'},
+  {start:0x00AAE0,end:0x00AAFF,name:'Meetei Mayek Extensions',nameCn:'曼尼普尔文扩展'},
+  {start:0x00AB00,end:0x00AB2F,name:'Ethiopic Extended-A',nameCn:'吉兹字母扩展-A'},
+  {start:0x00AB30,end:0x00AB6F,name:'Latin Extended-E',nameCn:'拉丁文扩展-E'},
+  {start:0x00AB70,end:0x00ABBF,name:'Cherokee Supplement',nameCn:'切罗基语补充'},
+  {start:0x00ABC0,end:0x00ABFF,name:'Meetei Mayek',nameCn:'曼尼普尔文'},
+  {start:0x00AC00,end:0x00D7AF,name:'Hangul Syllables',nameCn:'谚文音节'},
+  {start:0x00D7B0,end:0x00D7FF,name:'Hangul Jamo Extended-B',nameCn:'谚文字母扩展-B'},
+  {start:0x00D800,end:0x00DBFF,name:'High-half zone of UTF-16',nameCn:'UTF-16的高半区'},
+  {start:0x00DC00,end:0x00DFFF,name:'Low-half zone of UTF-16',nameCn:'UTF-16的低半区'},
+  {start:0x00E000,end:0x00F8FF,name:'Private Use Area',nameCn:'私用区'},
+  {start:0x00F900,end:0x00FAFF,name:'CJK Compatibility Ideographs',nameCn:'中日韩兼容表意文字'},
+  {start:0x00FB00,end:0x00FB4F,name:'Alphabetic Presentation Forms',nameCn:'字母表达形式（拉丁字母连字、亚美尼亚字母连字、希伯来文表现形式）'},
+  {start:0x00FB50,end:0x00FDFF,name:'Arabic Presentation Forms A',nameCn:'阿拉伯字母表达形式-A'},
+  {start:0x00FE00,end:0x00FE0F,name:'Variation Selector',nameCn:'异体字选择器'},
+  {start:0x00FE10,end:0x00FE1F,name:'Vertical Forms',nameCn:'竖排形式'},
+  {start:0x00FE20,end:0x00FE2F,name:'Combining Half Marks',nameCn:'组合用半符号'},
+  {start:0x00FE30,end:0x00FE4F,name:'CJK Compatibility Forms',nameCn:'中日韩兼容形式'},
+  {start:0x00FE50,end:0x00FE6F,name:'Small Form Variants',nameCn:'小写变体形式'},
+  {start:0x00FE70,end:0x00FEFF,name:'Arabic Presentation Forms B',nameCn:'阿拉伯文表达形式-B'},
+  {start:0x00FF00,end:0x00FFEF,name:'Halfwidth and Fullwidth Forms',nameCn:'半角及全角字符'},
+  {start:0x00FFF0,end:0x00FFFF,name:'Specials',nameCn:'特殊字符区'},
+  {start:0x010000,end:0x01007F,name:'Linear B Syllabary',nameCn:'线形文字B音节文字'},
+  {start:0x010080,end:0x0100FF,name:'Linear B Ideograms',nameCn:'线形文字B表意文字'},
+  {start:0x010100,end:0x01013F,name:'Aegean Numbers',nameCn:'爱琴海数字'},
+  {start:0x010140,end:0x01018F,name:'Ancient Greek Numbers',nameCn:'古希腊数字'},
+  {start:0x010190,end:0x0101CF,name:'Ancient Symbols',nameCn:'古代记数系统'},
+  {start:0x0101D0,end:0x0101FF,name:'Phaistos Disc',nameCn:'费斯托斯圆盘'},
+  {start:0x010280,end:0x01029F,name:'Lycian',nameCn:'吕基亚字母'},
+  {start:0x0102A0,end:0x0102DF,name:'Carian',nameCn:'卡利亚字母'},
+  {start:0x0102E0,end:0x0102FF,name:'Coptic Epact Numbers',nameCn:'科普特闰余数字'},
+  {start:0x010300,end:0x01032F,name:'Old Italic',nameCn:'古意大利字母'},
+  {start:0x010330,end:0x01034F,name:'Gothic',nameCn:'哥特字母'},
+  {start:0x010350,end:0x01037F,name:'Old Permic',nameCn:'古彼尔姆文'},
+  {start:0x010380,end:0x01039F,name:'Ugaritic',nameCn:'乌加里特字母'},
+  {start:0x0103A0,end:0x0103DF,name:'Old Persian',nameCn:'古波斯楔形文字'},
+  {start:0x010400,end:0x01044F,name:'Deseret',nameCn:'德赛莱特字母'},
+  {start:0x010450,end:0x01047F,name:'Shavian',nameCn:'萧伯纳字母'},
+  {start:0x010480,end:0x0104AF,name:'Osmanya',nameCn:'奥斯曼亚字母'},
+  {start:0x0104B0,end:0x0104FF,name:'Osage',nameCn:'欧塞奇字母'},
+  {start:0x010500,end:0x01052F,name:'Elbasan',nameCn:'艾尔巴桑字母'},
+  {start:0x010530,end:0x01056F,name:'Caucasian Albanian',nameCn:'高加索阿尔巴尼亚文'},
+  {start:0x010600,end:0x01077F,name:'Linear A',nameCn:'线形文字A'},
+  {start:0x010800,end:0x01083F,name:'Cypriot Syllabary',nameCn:'塞浦路斯音节文字'},
+  {start:0x010840,end:0x01085F,name:'Imperial Aramaic',nameCn:'帝国亚兰文字'},
+  {start:0x010860,end:0x01087F,name:'Palmyrene',nameCn:'帕尔迈拉字母'},
+  {start:0x010880,end:0x0108AF,name:'Nabataean',nameCn:'纳巴泰字母'},
+  {start:0x0108E0,end:0x0108FF,name:'Hatran',nameCn:'哈特兰文'},
+  {start:0x010900,end:0x01091F,name:'Phoenician',nameCn:'腓尼基字母'},
+  {start:0x010920,end:0x01093F,name:'Lydian',nameCn:'吕底亚字母'},
+  {start:0x010980,end:0x01099F,name:'Meroitic Hieroglyphs',nameCn:'麦罗埃文圣书体'},
+  {start:0x0109A0,end:0x0109FF,name:'Meroitic Cursive',nameCn:'麦罗埃文草书体'},
+  {start:0x010A00,end:0x010A5F,name:'Kharoshthi',nameCn:'佉卢文'},
+  {start:0x010A60,end:0x010A7F,name:'Old South Arabian',nameCn:'古南阿拉伯字母'},
+  {start:0x010A80,end:0x010A9F,name:'Old North Arabian',nameCn:'古北阿拉伯字母'},
+  {start:0x010AC0,end:0x010AFF,name:'Manichaean',nameCn:'摩尼字母'},
+  {start:0x010B00,end:0x010B3F,name:'Avestan',nameCn:'阿维斯陀字母'},
+  {start:0x010B40,end:0x010B5F,name:'Inscriptional Parthian',nameCn:'碑刻帕提亚文'},
+  {start:0x010B60,end:0x010B7F,name:'Inscriptional Pahlavi',nameCn:'碑刻巴列维文'},
+  {start:0x010B80,end:0x010BAF,name:'Psalter Pahlavi',nameCn:'诗篇巴列维文'},
+  {start:0x010C00,end:0x010C4F,name:'Old Turkic',nameCn:'古突厥文'},
+  {start:0x010D00,end:0x010D3F,name:'Hanifi Rohingya',nameCn:'哈乃斐罗兴亚文字'},
+  {start:0x010C80,end:0x010CFF,name:'Old Hungarian',nameCn:'古匈牙利字母'},
+  {start:0x010E60,end:0x010E7F,name:'Rumi Numeral Symbols',nameCn:'卢米文数字'},
+  {start:0x010E80,end:0x010EBF,name:'Yezidi',nameCn:'雅兹迪文'},
+  {start:0x010F00,end:0x010F2F,name:'Old Sogdian',nameCn:'古粟特字母'},
+  {start:0x010F30,end:0x010F6F,name:'Sogdian',nameCn:'粟特字母'},
+  {start:0x010FB0,end:0x010FDF,name:'Chorasmian',nameCn:'花剌子模字母'},
+  {start:0x010FE0,end:0x010FFF,name:'Elymaic',nameCn:'埃利迈斯字母'},
+  {start:0x011000,end:0x01107F,name:'Brahmi',nameCn:'婆罗米文字'},
+  {start:0x011080,end:0x0110CF,name:'Kaithi',nameCn:'凯提文'},
+  {start:0x0110D0,end:0x0110FF,name:'Sora Sompeng',nameCn:'索拉僧平文字'},
+  {start:0x011100,end:0x01114F,name:'Chakma',nameCn:'查克马文'},
+  {start:0x011150,end:0x01117F,name:'Mahajani',nameCn:'马哈佳尼文'},
+  {start:0x011180,end:0x0111DF,name:'Sharada',nameCn:'夏拉达文'},
+  {start:0x0111E0,end:0x0111FF,name:'Sinhala Archaic Numbers',nameCn:'古僧伽罗文数字'},
+  {start:0x011200,end:0x01124F,name:'Khojki',nameCn:'可吉文'},
+  {start:0x011280,end:0x0112AF,name:'Multani',nameCn:'穆尔塔尼文'},
+  {start:0x0112B0,end:0x0112FF,name:'Khudawadi',nameCn:'库达瓦迪文'},
+  {start:0x011300,end:0x01137F,name:'Grantha',nameCn:'古兰塔文'},
+  {start:0x011400,end:0x01147F,name:'Newa',nameCn:'尼泊尔纽瓦字母'},
+  {start:0x011480,end:0x0114DF,name:'Tirhuta',nameCn:'底罗仆多文'},
+  {start:0x011580,end:0x0115FF,name:'Siddham',nameCn:'悉昙文字'},
+  {start:0x011600,end:0x01165F,name:'Modi',nameCn:'莫迪文'},
+  {start:0x011660,end:0x01167F,name:'Mongolian Supplement',nameCn:'蒙古文补充'},
+  {start:0x011680,end:0x0116CF,name:'Takri',nameCn:'塔克里字母'},
+  {start:0x011700,end:0x01173F,name:'Ahom',nameCn:'阿洪姆文'},
+  {start:0x011800,end:0x01184F,name:'Dogra',nameCn:'多格拉文'},
+  {start:0x0118A0,end:0x0118FF,name:'Warang Citi',nameCn:'瓦兰齐地文'},
+  {start:0x011900,end:0x01195F,name:'Dhives Akuru',nameCn:'岛屿字母'},
+  {start:0x0119A0,end:0x0119FF,name:'Nandinagari',nameCn:'南迪那嘎黎文'},
+  {start:0x011A00,end:0x011A4F,name:'Zanabazar Square',nameCn:'札那巴札尔方形字母'},
+  {start:0x011A50,end:0x011AAF,name:'Soyombo',nameCn:'索永布文字'},
+  {start:0x011AC0,end:0x011AFF,name:'Pau Cin Hau',nameCn:'包钦豪文'},
+  {start:0x011C00,end:0x011C6F,name:'Bhaiksuki',nameCn:'拜克舒基文'},
+  {start:0x011C70,end:0x011CBF,name:'Marchen',nameCn:'玛钦文'},
+  {start:0x011D00,end:0x011D5F,name:'Masaram Gondi',nameCn:'马萨拉姆共地文字'},
+  {start:0x011D60,end:0x011DAF,name:'Gunjala Gondi',nameCn:'古吉拉共地文字'},
+  {start:0x011EE0,end:0x011EFF,name:'Makasar',nameCn:'玛卡莎文'},
+  {start:0x011FB0,end:0x011FBF,name:'Lisu Supplement',nameCn:'老傈僳文'},
+  {start:0x011FC0,end:0x011FFF,name:'Tamil Supplement',nameCn:'泰米尔文补充'},
+  {start:0x012000,end:0x0123FF,name:'Cuneiform',nameCn:'楔形文字'},
+  {start:0x012400,end:0x01247F,name:'Cuneiform Numbers and Punctuation',nameCn:'楔形文字数字和标点符号'},
+  {start:0x012480,end:0x01254F,name:'Early Dynastic Cuneiform',nameCn:'早期王朝楔形文字'},
+  {start:0x013000,end:0x01342F,name:'Egyptian Hieroglyphs',nameCn:'埃及圣书体'},
+  {start:0x013430,end:0x01343F,name:'Egyptian Hieroglyphs Format Controls',nameCn:'埃及圣书体格式控制'},
+  {start:0x014400,end:0x01467F,name:'Anatolian Hieroglyphs',nameCn:'安纳托利亚象形文字'},
+  {start:0x016800,end:0x016A3F,name:'Bamum Supplement',nameCn:'巴姆穆文字补充'},
+  {start:0x016A40,end:0x016A6F,name:'Mro',nameCn:'默文'},
+  {start:0x016AD0,end:0x016AFF,name:'Bassa Vah',nameCn:'巴萨哇文字'},
+  {start:0x016B00,end:0x016B8F,name:'Pahawh Hmong',nameCn:'救世苗文'},
+  {start:0x016E40,end:0x016E9F,name:'Medefaidrin',nameCn:'梅德法伊德林文'},
+  {start:0x016F00,end:0x016F9F,name:'Miao',nameCn:'柏格理苗文'},
+  {start:0x016FE0,end:0x016FFF,name:'Ideographic Symbols and Punctuation',nameCn:'表意符号和标点符号'},
+  {start:0x017000,end:0x0187FF,name:'Tangut',nameCn:'西夏文'},
+  {start:0x018800,end:0x018AFF,name:'Tangut Components',nameCn:'西夏文部首'},
+  {start:0x018B00,end:0x018CFF,name:'Khitan Small Script',nameCn:'契丹小字'},
+  {start:0x018D00,end:0x018D8F,name:'Tangut Supplement',nameCn:'西夏文补充'},
+  {start:0x01B000,end:0x01B0FF,name:'Kana Supplement',nameCn:'日文假名补充'},
+  {start:0x01B100,end:0x01B12F,name:'Kana Extended-A',nameCn:'日文假名扩展-A'},
+  {start:0x01B130,end:0x01B16F,name:'Small Kana Extension',nameCn:'小假名扩充'},
+  {start:0x01B170,end:0x01B2FF,name:'Nushu',nameCn:'女书'},
+  {start:0x01BC00,end:0x01BC9F,name:'Duployan',nameCn:'杜普雷速记'},
+  {start:0x01BCA0,end:0x01BCAF,name:'Shorthand Format Controls',nameCn:'速记格式控制符'},
+  {start:0x01D000,end:0x01D0FF,name:'Byzantine Musical Symbols',nameCn:'拜占庭音乐符号'},
+  {start:0x01D100,end:0x01D1FF,name:'Musical Symbols',nameCn:'音乐符号'},
+  {start:0x01D200,end:0x01D24F,name:'Ancient Greek Musical Notation',nameCn:'古希腊音乐记号'},
+  {start:0x01D2E0,end:0x01D2FF,name:'Mayan Numerals',nameCn:'玛雅数字'},
+  {start:0x01D300,end:0x01D35F,name:'Tai Xuan Jing Symbols',nameCn:'太玄经符号'},
+  {start:0x01D360,end:0x01D37F,name:'Counting Rod Numerals',nameCn:'算筹'},
+  {start:0x01D400,end:0x01D7FF,name:'Mathematical Alphanumeric Symbols',nameCn:'数学字母数字符号'},
+  {start:0x01D800,end:0x01DAAF,name:'Sutton SignWriting',nameCn:'萨顿书写符号'},
+  {start:0x01E000,end:0x01E02F,name:'Glagolitic Supplement',nameCn:'格拉哥里字母补充'},
+  {start:0x01E100,end:0x01E14F,name:'Nyiakeng Puachue Hmong',nameCn:'创世纪苗文'},
+  {start:0x01E2C0,end:0x01E2FF,name:'Wancho',nameCn:'万秋文'},
+  {start:0x01E800,end:0x01E8DF,name:'Mende Kikakui',nameCn:'门地奇卡奎文'},
+  {start:0x01E900,end:0x01E95F,name:'Adlam',nameCn:'阿德拉姆字母'},
+  {start:0x01EC70,end:0x01ECBF,name:'Indic Siyaq Numbers',nameCn:'印度西亚克数字'},
+  {start:0x01ED00,end:0x01ED4F,name:'Ottoman Siyaq Numbers',nameCn:'奥斯曼西亚克数字'},
+  {start:0x01EE00,end:0x01EEFF,name:'Arabic Mathematical Alphanumeric Symbols',nameCn:'阿拉伯字母数字符号'},
+  {start:0x01F000,end:0x01F02F,name:'Mahjong Tiles',nameCn:'麻将牌'},
+  {start:0x01F030,end:0x01F09F,name:'Domino Tiles',nameCn:'多米诺骨牌'},
+  {start:0x01F0A0,end:0x01F0FF,name:'Playing Cards',nameCn:'扑克牌'},
+  {start:0x01F100,end:0x01F1FF,name:'Enclosed Alphanumeric Supplement',nameCn:'带圈字母数字补充'},
+  {start:0x01F200,end:0x01F2FF,name:'Enclosed Ideographic Supplement',nameCn:'带圈表意文字补充'},
+  {start:0x01F300,end:0x01F5FF,name:'Miscellaneous Symbols And Pictographs',nameCn:'杂项符号和象形文字'},
+  {start:0x01F600,end:0x01F64F,name:'Emotions',nameCn:'表情符号'},
+  {start:0x01F650,end:0x01F67F,name:'Ornamental Dingbats',nameCn:'装饰符号'},
+  {start:0x01F680,end:0x01F6FF,name:'Transport And Map Symbols',nameCn:'交通和地图符号'},
+  {start:0x01F700,end:0x01F77F,name:'Alchemical Symbols',nameCn:'炼金术符号'},
+  {start:0x01F780,end:0x01F7FF,name:'Geometric Shapes Extended',nameCn:'几何图形扩展'},
+  {start:0x01F800,end:0x01F8FF,name:'Supplemental Arrows-C',nameCn:'追加箭头-C'},
+  {start:0x01F900,end:0x01F9FF,name:'Supplemental Symbols and Pictographs',nameCn:'补充符号和象形文字'},
+  {start:0x01FA00,end:0x01FA6F,name:'Chess Symbols',nameCn:'国际象棋符号'},
+  {start:0x01FA70,end:0x01FAFF,name:'Symbols and Pictographs Extended-A',nameCn:'符号和象形文字扩展-A'},
+  {start:0x01FB00,end:0x01FBFF,name:'Symbols for Legacy Computing',nameCn:'保留计算符号'},
+  {start:0x020000,end:0x02A6DF,name:'CJK Unified Ideographs Extension B',nameCn:'中日韩统一表意文字扩展B区'},
+  {start:0x02A700,end:0x02B73F,name:'CJK Unified Ideographs Extension C',nameCn:'中日韩统一表意文字扩展C区'},
+  {start:0x02B740,end:0x02B81F,name:'CJK Unified Ideographs Extension D',nameCn:'中日韩统一表意文字扩展D区'},
+  {start:0x02B820,end:0x02CEAF,name:'CJK Unified Ideographs Extension E',nameCn:'中日韩统一表意文字扩展E区'},
+  {start:0x02CEB0,end:0x02EBEF,name:'CJK Unified Ideographs Extension F',nameCn:'中日韩统一表意文字扩展F区'},
+  {start:0x02F800,end:0x02FA1F,name:'CJK Compatibility Ideographs Supplement',nameCn:'中日韩兼容表意文字增补'},
+  {start:0x030000,end:0x031389,name:'CJK Unified Ideographs Extension G',nameCn:'中日韩统一表意文字扩展G区'},
+  {start:0x031400,end:0x033D1F,name:'Small Seal Script',nameCn:'小篆'},
+  {start:0x033E00,end:0x0355FF,name:'Oracle Bone Script',nameCn:'甲骨文'},
+  {start:0x0E0000,end:0x0E007F,name:'Tags',nameCn:'标签'},
+  {start:0x0E0100,end:0x0E01EF,name:'Variation Selectors Supplement',nameCn:'选择器变化补充'},
+  {start:0x0F0000,end:0x0FFFFD,name:'Supplementary Private Use Area-A',nameCn:'补充私人使用区A'},
+  {start:0x100000,end:0x10FFFD,name:'Supplementary Private Use Area-B',nameCn:'补充私人使用区B'}
+];
+
+})();
+</script>
+</head>
+<body>
+<div class="container mainPanel">
+  <h2><span id="title"></span><span id="author" class="mlm remark"></span></h2>
+  <div><span class="declare">免责声明：本工具仅用于学习研究目的，任何使用本工具造成的影响与后果均由使用者全权负责！</span></div>
+  <div class="mts">
+    <table id='blocksTbl' class="monoFont mtm" style="display:block;">
+      <thead>
+        <tr><th colspan="2"><h3>Unicode区块列表</h3></th></tr>
+        <tr><th>编码范围</th><th>区块名称</th></tr>
+      </thead>
+      <tbody id="blocksBody"></tbody>
+    </table>
+    <div id="viewBlockPanel" class="mtm" style="display:none;">
+      <input id="idxHide" type="hidden"/>
+      <table class="monoFont bigFont cellCenter colHeader clickableCell mtt">
+        <thead id="viewBlockHeader"></thead>
+        <tbody id="viewBlockBody"></tbody>
+      </table>
+    </div>
+    <div id="editorPanel" class="fixEditorPanel">
+      <div class="toolbar"
+        ><button id="copyBtn" type="button">复制</button
+        ><button id="clearBtn" type="button" class="mlt">清空</button
+        ><span id="backBtnSepa" class="toolbarSepa" style="display:none;"></span
+        ><button id="backBtn" type="button" style="display:none;">返回</button
+      ></div>
+      <div id="fontToolbar" class="toolbar mtt" style="display:none;"
+        ><fieldset
+          ><legend>字体</legend
+          ><input id="fontSys" type="radio" name="font" value=""/><label id="fontSysLbl" for="fontSys" class="mrs">系统</label
+          ><input id="fontMono" type="radio" name="font" value="mono"/><label id="fontMonoLbl" for="fontMono" class="mrs">等宽</label
+          ><input id="fontNoto" type="radio" name="font" value="noto"/><label id="fontNotoLbl" for="fontNoto">Noto</label
+        ></fieldset
+      ></div>
+      <textarea id="editor" class="editor mtt"></textarea>
+    </div>
+  </div>
+  <h3>说明</h3>
+  <ul>
+    <li>Unicode字符全集。</li>
+  </ul>
+  <div class="mts"><a id="saveMe" href="javascript:;"></a> (保存的html文件可使用支持HTML5的浏览器打开)</div>
+  <table id="verHis" class="mts remark"></table>
+</div>
+</body>
+</html>
