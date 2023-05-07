@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style type="text/css">
+*{box-sizing:border-box;}
+body{margin:0;}
+button{padding:1px 3px;}
+table{border-collapse:collapse;}
+table tr th,table tr td{border:1px solid #7f7f7f;padding:2px 5px;}
+ul{margin:0;padding-left:25px;}
+.container{padding:10px 15px;}
+.declare{color:#ff3f3f;font-weight:bold;}
+.remark{color:#3f3f3f;font-family:'新宋体';font-size:0.8rem;}
+.noWrap{white-space:nowrap;word-break:keep-all;}
+.breakWord{overflow-wrap:break-word;}
+.mlt{margin-left:5px;}
+.mls{margin-left:8px;}
+.mlm{margin-left:15px;}
+.mlb{margin-left:30px;}
+.mrt{margin-right:5px;}
+.mrs{margin-right:8px;}
+.mrm{margin-right:15px;}
+.mrb{margin-right:30px;}
+.mtt{margin-top:5px;}
+.mts{margin-top:8px;}
+.mtm{margin-top:15px;}
+.mtb{margin-top:30px;}
+.mbt{margin-bottom:5px;}
+.mbs{margin-bottom:8px;}
+.mbm{margin-bottom:15px;}
+.mbb{margin-bottom:30px;}
+
+.vMidBlc{display:inline-block;vertical-align:middle;}
+.toolbar>button,.toolBtn{font-family:'黑体';font-size:16px;display:inline-block;}
+</style>
+<script type="text/javascript">
+(()=>{
+
+const _META={
+  title:'计算练习题生成器',
+  author:'Royce Wang',
+  download:'calc-exercises-generator.html',
+  versionHistory:[
+    ['1.0','2023-05-05',{html:'初始创建。'}],
+    ['1.1','2023-05-07',{html:'增加输出预处理代码支持。<br/>添加代码、说明、预处理默认值。'}]
+  ]
+};
+
+const Kit=(()=>{
+  const Excp=function(msg,cause){
+    this.msg=msg;
+    this.cause=cause;
+  };
+  const fcc=String.fromCharCode;
+  const Cls=function(){
+    this.Excp=Excp;
+  };
+  Cls.prototype.empty=function(val){return val==null||val==='';};
+  Cls.prototype.notEmpty=function(val){return !this.empty(val);};
+  Cls.prototype.fcc=fcc;
+  Cls.prototype.byid=function(id){return document.getElementById(id);};
+  Cls.prototype.celmt=function(name){return document.createElement(name);};
+  Cls.prototype.ctext=function(text){return document.createTextNode(text);};
+  Cls.prototype.setText=function(dom,text){
+    dom.innerHTML='';
+    this.notEmpty(text)&&dom.appendChild(this.ctext(text));
+  };
+  Cls.prototype.excp=function(msg,cause){return new Excp(msg,cause);};
+  Cls.prototype.preProm=function(exec){return ()=>new Promise(exec);};
+  Cls.prototype.serial=function(prePms){
+    return async()=>{
+      let ret=[];
+      for(prePm of prePms){
+        ret.push(await prePm());
+      }
+      return ret;
+    };
+  };
+  Cls.prototype.parallel=function(prePms){return ()=>Promise.all(prePms.map(prePm=>prePm()));};
+  Cls.prototype.lpad=function(str,pad,len){
+    while(str.length<len){
+      str=pad+str;
+    }
+    return str.substring(str.length-len);
+  };
+  Cls.prototype.rpad=function(str,pad,len){
+    while(str.length<len){
+      str+=pad;
+    }
+    return str.substring(0,len);
+  };
+  Cls.prototype.utf8En=function(text){
+    let code='';
+    for(let i=0;i<text.length;i++){
+      const c=text.charCodeAt(i);
+      code+=c<0x80?fcc(c):c<0x800?(fcc((c>>>6)|0xC0)+fcc(c&0x3F|0x80)):(fcc((c>>>12)|0xE0)+fcc((c>>>6)&0x3F|0x80)+fcc(c&0x3F|0x80));
+    }
+    return code;
+  };
+  Cls.prototype.utf8De=function(code){
+    let text='';
+    for(let i=0;i<code.length;i++){
+      const c=code.charCodeAt(i);
+      text+=c<0x80?fcc(c):c<0xE0?fcc(((c&0x1F)<<6)|(code.charCodeAt(++i)&0x3F)):fcc(((c&0x0F)<<12)|((code.charCodeAt(++i)&0x3F)<<6)|(code.charCodeAt(++i)&0x3F));
+    }
+    return text;
+  };
+  Cls.prototype.loadFile=function(load,emsg){
+    const that=this;
+    return that.preProm((ok,err)=>{
+      try{
+        const r=new FileReader();
+        r.onloadend=e=>{
+          if(e.target.error){
+            err(that.excp(emsg,e.target.error));
+          }else{
+            ok(e.target.result);
+          }
+        };
+        load(r);
+      }catch(t){
+        err(that.excp(emsg,t));
+      }
+    });
+  };
+  Cls.prototype.loadAsUrl=function(file,emsg){return this.loadFile(r=>r.readAsDataURL(file),emsg);};
+  Cls.prototype.loadAsBuff=function(file,emsg){return this.loadFile(r=>r.readAsArrayBuffer(file),emsg);};
+  Cls.prototype.loadAsText=function(file,emsg){return this.loadFile(r=>r.readAsText(file),emsg);};
+  return new Cls();
+})();
+
+const VerHis=(kit=>{
+  let _data=null;
+  const Cls=function(){};
+  // data format:
+  // {
+  //   cols: {
+  //     titles: ['Col 1','Col 2','Col 3'],
+  //     thClses: ['alignCenter','',''],
+  //     tdClses: ['nowrap','nowrap','']
+  //   },
+  //   rows: {
+  //     rowData: [
+  //       ['Key 1','Date 1','Comments 1'],
+  //       ['Key 2','Date 2','Comments 2'],
+  //       ['Key 3','Date 3',{html:'Comments 3-1<br/>Comments 3-2'}]
+  //     ],
+  //     trClses: ['even','odd','even']
+  //   }
+  // }
+  Cls.prototype.init=function(tbl,data){
+    _data=data;
+    tbl.innerHTML='';
+    if(!(data&&data.cols&&data.cols.titles&&data.cols.titles.length>0)){
+      return;
+    }
+    const thead=kit.celmt('thead');
+    const tr=kit.celmt('tr');
+    data.cols.titles.forEach((title,c)=>{
+      const th=kit.celmt('th');
+      kit.notEmpty(title)&&kit.setText(th,title);
+      data.cols.thClses&&kit.notEmpty(data.cols.thClses[c])&&(th.className=data.cols.thClses[c]);
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    tbl.appendChild(thead);
+    const tbody=kit.celmt('tbody');
+    data.rows&&data.rows.rowData&&data.rows.rowData.forEach((ctnts,r)=>{
+      const tr=kit.celmt('tr');
+      ctnts&&ctnts.forEach((ctnt,c)=>{
+        const td=kit.celmt('td');
+        kit.notEmpty(ctnt)&&(typeof ctnt==='string'?kit.setText(td,ctnt):(ctnt.html&&(td.innerHTML=ctnt.html)));
+        data.cols.tdClses&&kit.notEmpty(data.cols.tdClses[c])&&(td.className=data.cols.tdClses[c]);
+        tr.appendChild(td);
+      });
+      data.rows.trClses&&kit.notEmpty(data.rows.trClses[r])&&(tr.className=data.rows.trClses[r]);
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+  };
+  Cls.prototype.getCtnt=function(r,c){
+    return _data&&_data.rows&&_data.rows.rowData&&_data.rows.rowData[r]&&_data.rows.rowData[r][c];
+  };
+  return new Cls();
+})(Kit);
+
+const DOM={};
+const initDom=dom=>document.body.querySelectorAll('*').forEach(e=>e.id&&(dom[e.id]=e));
+const initSaveMe=htmlCtnt=>{
+  DOM.saveMe.href=URL.createObjectURL(new Blob([htmlCtnt],{type:'text/html'}));
+  DOM.saveMe.download=_META.download;
+  Kit.setText(DOM.saveMe,'保存'+_META.title);
+};
+const initVerHis=()=>{
+  VerHis.init(DOM.verHis,{
+    cols:{titles:['版本','日期','备注'],tdClses:['noWrap','noWrap','wordWrap']},
+    rows:{rowData:_META.versionHistory}
+  });
+  const title=_META.title+' '+VerHis.getCtnt(_META.versionHistory.length-1,0);
+  document.title=title;
+  Kit.setText(DOM.title,title);
+  Kit.setText(DOM.author,_META.author);
+};
+
+window.onload=()=>{
+  const _selfHtml='<!DOCTYPE '+'html>'+document.documentElement.outerHTML;
+  initDom(DOM);
+  initSaveMe(_selfHtml);
+  initVerHis();
+  init();
+};
+
+// ========= custom codes
+const init=()=>{
+  initEvents();
+  let sampleCode='const a=Math.floor(Math.random()*100)+1;\n';
+  sampleCode+='const b=Math.floor(Math.random()*100)+1;\n';
+  sampleCode+='const question=a+\'×\'+b;\n';
+  sampleCode+='const answer=a*b;\n';
+  sampleCode+='return [question+\'=\',question+\'=\'+answer];';
+  DOM.firstCode.value=sampleCode;
+  DOM.firstRemark.value='示例代码(随机生成两个1-100的整数相乘习题)';
+  let sampleProc='/* 示例预处理(算式与解答分为10个一组中间加上空行) */\n';
+  sampleProc+='const cnt=result.questions.length;\n';
+  sampleProc+='for(let i=1;i<result.questions.length;i++){\n';
+  sampleProc+='  if(i%10===0){\n';
+  sampleProc+='    result.questions.splice(i,0,\'\');\n';
+  sampleProc+='    result.answers.splice(i,0,\'\');\n';
+  sampleProc+='  }\n';
+  sampleProc+='}';
+  DOM.outPreProc.value=sampleProc;
+};
+const initEvents=()=>{
+  DOM.export.addEventListener('click',exportCfg);
+  DOM.import.addEventListener('click',importCfg);
+  DOM.importFile.addEventListener('change',importCfgFile);
+  DOM.addCfg.addEventListener('click',e=>addItem(DOM.cfgTbody));
+  DOM.clearCfg.addEventListener('click',e=>clearItems(DOM.cfgTbody));
+  DOM.cfgTbody.addEventListener('click',tbodyClick);
+  DOM.cfgTbody.addEventListener('input',tbodyInput);
+  DOM.clearProc.addEventListener('click',clearOutPreProc);
+  DOM.gen.addEventListener('click',genExercises);
+  DOM.clear.addEventListener('click',clearResult);
+};
+const updateFirstPercent=tbody=>{
+  const rows=tbody.children;
+  let pct=100;
+  for(let r=1;r<rows.length;r++){
+    pct-=Number(rows[r].children[1].children[0].value);
+  }
+  rows[0].children[1].children[0].innerHTML=pct+'%';
+};
+const addItem=(tbody,cfgItem)=>{
+  const tr=Kit.celmt('tr');
+  let td=null;
+  const rnum=tbody.children.length+1;
+  td=Kit.celmt('td');
+  td.innerHTML=rnum;
+  tr.appendChild(td);
+  td=Kit.celmt('td');
+  const pctVal=cfgItem?cfgItem.percent:0;
+  const pct=Kit.celmt('input');
+  pct.type='range';
+  pct.min='0';
+  pct.max='100';
+  pct.value=pctVal;
+  pct.className='vMidBlc';
+  td.appendChild(pct);
+  const pctLbl=Kit.celmt('label');
+  pctLbl.innerHTML=pctVal+'%';
+  pctLbl.className='vMidBlc mlt';
+  td.appendChild(pctLbl);
+  tr.appendChild(td);
+  td=Kit.celmt('td');
+  const codeBox=Kit.celmt('textarea');
+  codeBox.style='width:400px;resize:vertical;display:block;';
+  codeBox.rows=5;
+  codeBox.value=cfgItem?cfgItem.code:'';
+  td.appendChild(codeBox);
+  tr.appendChild(td);
+  td=Kit.celmt('td');
+  const remarkBox=Kit.celmt('textarea');
+  remarkBox.style='width:320px;resize:vertical;display:block;';
+  remarkBox.rows=5;
+  remarkBox.value=cfgItem?cfgItem.remark:'';
+  td.appendChild(remarkBox);
+  tr.appendChild(td);
+  td=Kit.celmt('td');
+  const delBtn=Kit.celmt('button');
+  delBtn.innerHTML='×';
+  delBtn.className='toolBtn';
+  td.appendChild(delBtn);
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+};
+const removeItem=row=>{
+  const rows=row.parentElement.children;
+  row.remove();
+  for(let r=1;r<rows.length;r++){
+    rows[r].children[0].innerHTML=r+1;
+  }
+};
+const clearItems=tbody=>{
+  const rows=tbody.children;
+  for(let r=rows.length-1;r>0;r--){
+    rows[r].remove();
+  }
+  DOM.firstCode.value='';
+  DOM.firstRemark.value='';
+  updateFirstPercent(tbody);
+};
+const tbodyClick=e=>{
+  if(e.target.tagName==='BUTTON'){
+    const row=e.target.parentElement.parentElement;
+    const tbody=row.parentElement;
+    removeItem(row);
+    updateFirstPercent(tbody);
+  }else{
+    e.preventDefault();
+    e.stopPropagation();
+  }
+};
+const tbodyInput=e=>{
+  if(e.target.tagName==='INPUT' && e.target.type==='range'){
+    const row=e.target.parentElement.parentElement;
+    const tbody=row.parentElement;
+    const rows=tbody.children;
+    let limit=100;
+    for(let r=1;r<rows.length;r++){
+      if(rows[r]!==row){
+        limit-=Number(rows[r].children[1].children[0].value);
+      }
+    }
+    if(Number(e.target.value)>limit){
+      e.preventDefault();
+      e.stopPropagation();
+      e.target.value=limit;
+      return;
+    }
+    e.target.nextSibling.innerHTML=e.target.value+"%";
+    updateFirstPercent(tbody);
+  }
+};
+const clearOutPreProc=()=>{
+  DOM.outPreProc.value='';
+};
+const getConfig=()=>{
+  const total=Number(DOM.totalCnt.value);
+  const items=buildItems(DOM.cfgTbody);
+  const outPreProc=DOM.outPreProc.value;
+  return {
+    total:total,
+    items:items,
+    outPreProc:outPreProc
+  };
+};
+const buildItems=tbody=>{
+  const items=[];
+  const rows=tbody.children;
+  for(let r=0;r<rows.length;r++){
+    const pct=r===0?0:Number(rows[r].children[1].children[0].value);
+    items.push({
+      percent:pct,
+      code:rows[r].children[2].children[0].value,
+      remark:rows[r].children[3].children[0].value
+    });
+  }
+  const firstPercentText=rows[0].children[1].children[0].innerHTML;
+  items[0].percent=Number(firstPercentText.substring(0,firstPercentText.length-1));
+  return items;
+};
+const exportCfg=e=>{
+  const cfg=getConfig();
+  const file=new File([JSON.stringify(cfg)],'cfg.txt',{type:'text/plain'});
+  if(DOM.exportSave.href){
+    URL.revokeObjectURL(DOM.exportSave.href);
+  }
+  DOM.exportSave.href=URL.createObjectURL(file);
+  DOM.exportSave.click();
+};
+const importCfg=e=>{
+  DOM.importFile.click();
+};
+const importCfgFile=async e=>{
+  let cfgStr=null;
+  try{
+    cfgStr=await Kit.loadAsText(e.target.files[0],'配置文件读取失败！')();
+    e.target.value='';
+  }catch(err){
+    e.target.value='';
+    DOM.resultBox.value=err.msg;
+    return;
+  }
+  let cfg=null;
+  try{
+    cfg=JSON.parse(cfgStr);
+    DOM.totalCnt.value=cfg.total;
+    clearItems(DOM.cfgTbody);
+    for(let i=0;i<cfg.items.length;i++){
+      if(i===0){
+        DOM.firstPct.innerHTML=cfg.items[i].percent+'%';
+        DOM.firstCode.value=cfg.items[i].code;
+        DOM.firstRemark.value=cfg.items[i].remark;
+      }else{
+        addItem(DOM.cfgTbody,cfg.items[i]);
+      }
+    }
+    DOM.outPreProc.value=cfg.outPreProc||'';
+  }catch(err){
+    console.error(err);
+    DOM.resultBox.value='配置文件有误！\n'+err.message;
+    return;
+  }
+};
+const genExercises=()=>{
+  const cfg=getConfig();
+  const result={
+    questions:[],
+    answers:[]
+  };
+  try{
+    cfg.dupCnt=0;
+    for(let i=0;i<cfg.total;i++){
+      genExerciseItem(result,cfg);
+    }
+    if(cfg.outPreProc){
+      try{
+        eval('(function(result){ '+cfg.outPreProc+' })(result);');
+      }catch(procErr){
+        throw new Error('输出预处理有误！\n'+procErr.message+'\n\n预处理代码接收参数对象"result"，它包含两个属性:"questions"与"answers"，分别代表生成好的习题数组及解答数组。预处理代码可对该参数对象进行调整处理，以便控制输出结果。\n\n若不需预处理，则应将文本框留空。');
+      }
+    }
+    DOM.resultBox.value='===算式列表===\n'+result.questions.join('\n')+'\n\n===解答列表===\n'+result.answers.join('\n')+'\n';
+  }catch(err){
+    DOM.resultBox.value=err.message;
+  }
+};
+const genExerciseItem=(result,cfg)=>{
+  let pct=0;
+  let rnd=Math.random()*100;
+  loopItems:for(let i=0;i<cfg.items.length;i++){
+    pct+=cfg.items[i].percent;
+    if(rnd<pct){
+      loopNoDup:while(true){
+        let data=null;
+        let codeErrMsg='';
+        try{
+          data=eval('(function(){ '+cfg.items[i].code+' })()');
+        }catch(codeErr){
+          codeErrMsg=codeErr.message+'\n';
+        }
+        if(codeErrMsg||!data||data.length<2||(typeof data[0]!=='string')||(typeof data[1]!=='string')){
+          throw new Error('代码'+(i+1)+'有误！\n'+codeErrMsg+'\n代码必须返回一个包含两个字符串的数组，前者为习题算式，后者为算式解答。');
+        }
+        if(result.questions.indexOf(data[0])<0||cfg.dupCnt>9999){
+          result.questions.push(data[0]);
+          result.answers.push(data[1]);
+          break loopNoDup;
+        }
+        cfg.dupCnt++;
+      }
+      break loopItems;
+    }
+  }
+};
+const clearResult=()=>{
+  DOM.resultBox.value='';
+};
+
+})();
+</script>
+</head>
+<body>
+<div class="container mainPanel">
+  <h2><span id="title"></span><span class="mlm remark">by: <span id="author"></span></span></h2>
+  <div><span class="declare">免责声明：本工具仅用于学习研究目的，任何使用本工具造成的影响与后果均由使用者全权负责！</span></div>
+  <div class="mts">
+    <div class="toolbar"
+      ><button id="export" type="button" class="mrt">导出</button
+      ><button id="import" type="button">导入</button
+    ></div>
+    <div class="mtt">
+      <label for="totalCnt" class="vMidBlc mrt">题目总数:</label
+      ><input id="totalCnt" type="number" min="1" max="9999" value="100" class="vMidBlc" style="width:60px;"/><br/>
+      <fieldset class="vMidBlc">
+        <legend>配置项</legend>
+        <div class="toolbar"
+          ><button id="addCfg" type="button" class="mrt">＋</button
+          ><button id="clearCfg" type="button">清空</button
+        ></div>
+        <table class="mtt">
+          <thead><tr><th>#</th><th>占比</th><th>代码</th><th>说明</th><th></th></tr></thead>
+          <tbody id="cfgTbody">
+            <tr>
+              <td>1</td>
+              <td style="text-align:right;"><label id="firstPct" class="vMidBlc">100%</label></td>
+              <td><textarea id="firstCode" rows="5" style="width:400px;resize:vertical;display:block;"></textarea></td>
+              <td><textarea id="firstRemark" rows="5" style="width:320px;resize:vertical;display:block;"></textarea></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset><br/>
+      <fieldset class="vMidBlc">
+        <legend>输出预处理</legend>
+        <div class="toolbar"><button id="clearProc" type="button">清空</button></div>
+        <textarea id="outPreProc" rows="8" class="mtt" style="width:600px;resize:vertical;display:block;"></textarea>
+      </fieldset>
+    </div>
+    <div class="toolbar mtm"
+      ><button id="gen" type="button" class="mrt">生成</button
+      ><button id="clear" type="button">清空</button
+    ></div>
+    <textarea id="resultBox" rows="20" class="mtt" style="width:800px;"></textarea>
+    <div style="display:none;">
+      <a id="exportSave" href="" download="cfg.txt">save</a>
+      <input id="importFile" type="file" accept="text/plain"/>
+    </div>
+  </div>
+  <h3>说明</h3>
+  <ul>
+    <li>计算练习题生成器。</li>
+  </ul>
+  <div class="mts"><a id="saveMe" href="javascript:;"></a> (保存的html文件可使用支持HTML5的浏览器打开)</div>
+  <table id="verHis" class="mts remark"></table>
+</div>
+</body>
+</html>
