@@ -54,7 +54,8 @@ const _META={
   author:'Royce Wang',
   download:'schulte_grid.html',
   versionHistory:[
-    ['1.0','2024-09-28',{html:'初始创建。'}]
+    ['1.0','2024-09-28',{html:'初始创建。'}],
+    ['1.1','2024-09-28',{html:'调整计时器的显示位置。'}]
   ]
 };
 
@@ -338,7 +339,10 @@ const updateTimer=()=>{
       <label for="gridSize">方格大小:</label><input id="gridSize" type="range" min="3" max="10" value="5" class="mlt"/><span id="gridSizeText" class="mlt"></span>
     </div>
     <div class="toolbar centerToolbar mts">
-      <button id="go" class="largeButton">开始</button><button id="reset" class="mlm largeButton">重置</button><span id="timerText" class="mlm largeFont"></span>
+      <button id="go" class="largeButton">开始</button><button id="reset" class="mlm largeButton">重置</button>
+    </div>
+    <div class="toolbar centerToolbar mts">
+      <span id="timerText" class="mlm largeFont" style="height:36px;"></span>
     </div>
     <table class="borderGrid leftRightAutoMargin mtm">
       <tbody id="gridBody">
