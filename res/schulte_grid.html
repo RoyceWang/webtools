@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style type="text/css">
+*{box-sizing:border-box;}
+body{margin:0;}
+button{padding:1px 3px;}
+table{border-collapse:collapse;}
+table tr th,table tr td{border:1px solid #7f7f7f;padding:2px 5px;}
+ul{margin:0;padding-left:25px;}
+.container{padding:10px 15px;}
+.declare{color:#ff3f3f;font-weight:bold;}
+.remark{color:#3f3f3f;font-family:'新宋体';font-size:0.8rem;}
+.noWrap{white-space:nowrap;word-break:keep-all;}
+.breakWord{overflow-wrap:break-word;}
+.mlt{margin-left:5px;}
+.mls{margin-left:8px;}
+.mlm{margin-left:15px;}
+.mlb{margin-left:30px;}
+.mrt{margin-right:5px;}
+.mrs{margin-right:8px;}
+.mrm{margin-right:15px;}
+.mrb{margin-right:30px;}
+.mtt{margin-top:5px;}
+.mts{margin-top:8px;}
+.mtm{margin-top:15px;}
+.mtb{margin-top:30px;}
+.mbt{margin-bottom:5px;}
+.mbs{margin-bottom:8px;}
+.mbm{margin-bottom:15px;}
+.mbb{margin-bottom:30px;}
+
+.toolbar{display:flex;align-items:center;}
+.toolbar.centerToolbar{justify-content:center;}
+.bigFont{font-size:18px;}
+.largeFont{font-size:22px;}
+.largeButton{font-size:28px;padding:1px 8px;}
+.leftRightAutoMargin{margin-left:auto;margin-right:auto;}
+table.borderGrid{border:2px solid black;border-collapse:collapse;font-size:18px;font-weight:bold;}
+table.borderGrid>tbody>tr>td{border:1px solid gray;width:64px;height:64px;cursor:pointer;text-align:center;position:relative;}
+table.borderGrid>tbody>tr>td.done{background-color:#AFAFAF;}
+table.borderGrid>tbody>tr>td:not(.done):hover{background-color:#7FFFAF;}
+table.borderGrid>tbody>tr>td.wrong::before,table.borderGrid>tbody>tr>td.wrong::after{content:"";position:absolute;top:50%;left:0;width:100%;height:5%;background-color:red;}
+table.borderGrid>tbody>tr>td.wrong::before{transform:rotate(45deg);}
+table.borderGrid>tbody>tr>td.wrong::after{transform:rotate(-45deg);}
+</style>
+<script type="text/javascript">
+(()=>{
+
+const _META={
+  title:'Schulte Grid',
+  author:'Royce Wang',
+  download:'schulte_grid.html',
+  versionHistory:[
+    ['1.0','2024-09-28',{html:'初始创建。'}]
+  ]
+};
+
+const Kit=(()=>{
+  const obj={};
+  const desc={
+    enumerable:false,
+    configurable:false,
+    writable:false
+  };
+  const _dp=(o,k,v)=>{
+    desc.value=v;
+    Object.defineProperty(o,k,desc);
+  };
+  const dp=(k,v)=>_dp(obj,k,v);
+  const fcc=String.fromCharCode;
+  dp('dp',_dp);
+  dp('empty',v=>v==null||v==='');
+  dp('notEmpty',v=>!obj.empty(v));
+  dp('fcc',fcc);
+  dp('byid',id=>document.getElementById(id));
+  dp('celmt',name=>document.createElement(name));
+  dp('ctext',text=>document.createTextNode(text));
+  dp('setText',(dom,text)=>{
+    dom.innerHTML='';
+    obj.notEmpty(text)&&dom.appendChild(obj.ctext(text));
+  });
+  dp('excp',(msg,cause)=>{
+    const excp={};
+    Object.defineProperty(excp,'msg',{
+      enumerable:true,
+      configurable:false,
+      writable:false,
+      value:msg
+    });
+    Object.defineProperty(excp,'cause',{
+      enumerable:true,
+      configurable:false,
+      writable:false,
+      value:cause
+    });
+    return excp;
+  });
+  dp('preProm',exec=>new Promise(exec));
+  dp('serial',prePms=>async()=>{
+    let ret=[];
+    for(prePm of prePms){
+      ret.push(await prePm());
+    }
+    return ret;
+  });
+  dp('parallel',prePms=>()=>Promise.all(prePms.map(prePm=>prePm())));
+  dp('lpad',(str,pad,len)=>{
+    while(str.length<len){
+      str=pad+str;
+    }
+    return str.substring(str.length-len);
+  });
+  dp('rpad',(str,pad,len)=>{
+    while(str.length<len){
+      str+=pad;
+    }
+    return str.substring(0,len);
+  });
+  dp('utf8En',text=>{
+    let code='';
+    for(let i=0;i<text.length;i++){
+      const c=text.charCodeAt(i);
+      code+=c<0x80?fcc(c):c<0x800?(fcc((c>>>6)|0xC0)+fcc(c&0x3F|0x80)):(fcc((c>>>12)|0xE0)+fcc((c>>>6)&0x3F|0x80)+fcc(c&0x3F|0x80));
+    }
+    return code;
+  });
+  dp('utf8De',code=>{
+    let text='';
+    for(let i=0;i<code.length;i++){
+      const c=code.charCodeAt(i);
+      text+=c<0x80?fcc(c):c<0xE0?fcc(((c&0x1F)<<6)|(code.charCodeAt(++i)&0x3F)):fcc(((c&0x0F)<<12)|((code.charCodeAt(++i)&0x3F)<<6)|(code.charCodeAt(++i)&0x3F));
+    }
+    return text;
+  });
+  dp('loadFile',(load,emsg)=>obj.preProm((ok,err)=>{
+    try{
+      const r=new FileReader();
+      r.onloadend=e=>{
+        if(e.target.error){
+          err(obj.excp(emsg,e.target.error));
+        }else{
+          ok(e.target.result);
+        }
+      };
+      load(r);
+    }catch(t){
+      err(obj.excp(emsg,t));
+    }
+  }));
+  dp('loadAsUrl',(file,emsg)=>obj.loadFile(r=>r.readAsDataURL(file),emsg));
+  dp('loadAsBuff',(file,emsg)=>obj.loadFile(r=>r.readAsArrayBuffer(file),emsg));
+  return obj;
+})();
+
+const VerHis=(kit=>{
+  let _data=null;
+  const obj={};
+  const dp=(k,v)=>kit.dp(obj,k,v);
+  // data format:
+  // {
+  //   cols: {
+  //     titles: ['Col 1','Col 2','Col 3'],
+  //     thClses: ['alignCenter','',''],
+  //     tdClses: ['nowrap','nowrap','']
+  //   },
+  //   rows: {
+  //     rowData: [
+  //       ['Key 1','Date 1','Comments 1'],
+  //       ['Key 2','Date 2','Comments 2'],
+  //       ['Key 3','Date 3',{html:'Comments 3-1<br/>Comments 3-2'}]
+  //     ],
+  //     trClses: ['even','odd','even']
+  //   }
+  // }
+  dp('init',(tbl,data)=>{
+    _data=data;
+    tbl.innerHTML='';
+    if((data?.cols?.titles?.length||0)<=0){
+      return;
+    }
+    const thead=kit.celmt('thead');
+    const tr=kit.celmt('tr');
+    data.cols.titles.forEach((title,c)=>{
+      const th=kit.celmt('th');
+      kit.notEmpty(title)&&kit.setText(th,title);
+      data.cols.thClses&&kit.notEmpty(data.cols.thClses[c])&&(th.className=data.cols.thClses[c]);
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    tbl.appendChild(thead);
+    const tbody=kit.celmt('tbody');
+    data?.rows?.rowData&&data.rows.rowData.forEach((ctnts,r)=>{
+      const tr=kit.celmt('tr');
+      ctnts&&ctnts.forEach((ctnt,c)=>{
+        const td=kit.celmt('td');
+        kit.notEmpty(ctnt)&&(typeof ctnt==='string'?kit.setText(td,ctnt):(ctnt.html&&(td.innerHTML=ctnt.html)));
+        data.cols.tdClses&&kit.notEmpty(data.cols.tdClses[c])&&(td.className=data.cols.tdClses[c]);
+        tr.appendChild(td);
+      });
+      data.rows.trClses&&kit.notEmpty(data.rows.trClses[r])&&(tr.className=data.rows.trClses[r]);
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+  });
+  dp('getCtnt',(r,c)=>_data?.rows?.rowData&&_data.rows.rowData[r]&&_data.rows.rowData[r][c]);
+  return obj;
+})(Kit);
+
+const DOM={};
+const initDom=dom=>document.body.querySelectorAll('*').forEach(e=>e.id&&(dom[e.id]=e));
+const initSaveMe=htmlCtnt=>{
+  DOM.saveMe.href=URL.createObjectURL(new Blob([htmlCtnt],{type:'text/html'}));
+  DOM.saveMe.download=_META.download;
+  Kit.setText(DOM.saveMe,'保存'+_META.title);
+};
+const initVerHis=()=>{
+  VerHis.init(DOM.verHis,{
+    cols:{titles:['版本','日期','备注'],tdClses:['noWrap','noWrap','wordWrap']},
+    rows:{rowData:_META.versionHistory}
+  });
+  const title=`${_META.title} ${VerHis.getCtnt(_META.versionHistory.length-1,0)}`;
+  document.title=title;
+  Kit.setText(DOM.title,title);
+  Kit.setText(DOM.author,_META.author);
+};
+
+window.onload=()=>{
+  const _selfHtml='<!DOCTYPE html>'+document.documentElement.outerHTML;
+  initDom(DOM);
+  initSaveMe(_selfHtml);
+  initVerHis();
+  init();
+};
+
+// ========= custom codes
+const init=()=>{
+  DOM['gridSize'].addEventListener('input',updateSize);
+  DOM['go'].addEventListener('click',go);
+  DOM['reset'].addEventListener('click',updateSize);
+  updateSize();
+};
+const DATA={};
+const updateSize=()=>{
+  DATA.size=parseInt(DOM['gridSize'].value);
+  DATA.max=DATA.size*DATA.size;
+  DATA.done=0;
+  clearTimer();
+  initGrid();
+};
+const clearTimer=()=>{
+  stopTimer();
+  DATA.startTs=null;
+  DOM['timerText'].innerHTML='';
+};
+const stopTimer=()=>{
+  clearInterval(DATA.timer);
+  DATA.timer=null;
+};
+const initGrid=()=>{
+  DOM['gridSizeText'].innerHTML=DATA.size+'阶';
+  DOM['gridBody'].innerHTML='';
+  for(let r=0;r<DATA.size;r++){
+    const row=document.createElement('tr');
+    for(let c=0;c<DATA.size;c++){
+      const cell=document.createElement('td');
+      cell.addEventListener('click',checkAndMark);
+      row.appendChild(cell);
+    }
+    DOM['gridBody'].appendChild(row);
+  }
+};
+const checkAndMark=e=>{
+  const elmt=e.target;
+  const next=DATA.done+1;
+  const cur=elmt.val;
+  if(cur===next){
+    elmt.classList.add('done');
+    DATA.done++;
+    if(DATA.done===DATA.max){
+      stopTimer();
+      DOM['timerText'].innerHTML+=' 完成！';
+    }
+  }else if(cur>next){
+    elmt.classList.add('wrong');
+    setTimeout(()=>elmt.classList.remove('wrong'),500);
+  }
+};
+const go=()=>{
+  initGrid();
+  initNums();
+  startTimer();
+}
+const initNums=()=>{
+  const nums=[];
+  for(let i=0;i<DATA.max;i++){
+    nums.push(i+1);
+  }
+  let o=0;
+  while(nums.length>0){
+    const v=nums.splice(nums.length===1?0:Math.floor(Math.random()*nums.length),1)[0];
+    const r=Math.floor(o/DATA.size);
+    const c=o%DATA.size;
+    DOM['gridBody'].children[r].children[c].val=v;
+    DOM['gridBody'].children[r].children[c].innerHTML=v;
+    o++;
+  }
+};
+const startTimer=()=>{
+  if(DATA.timer){
+    stopTimer();
+  }
+  DATA.startTs=Date.now();
+  DATA.timer=setInterval(updateTimer,13);
+};
+const updateTimer=()=>{
+  let duration=Date.now()-DATA.startTs;
+  const hours=String(Math.floor(duration/3600000));
+  duration%=3600000;
+  const minutes=String(Math.floor(duration/60000));
+  duration%=60000;
+  const seconds=String(Math.floor(duration/1000));
+  const milliseconds=String(duration%1000);
+  DOM['timerText'].innerHTML=`${hours}:${Kit.lpad(minutes,'0',2)}:${Kit.lpad(seconds,'0',2)}.${Kit.lpad(milliseconds,'0',3)}`;
+};
+
+})();
+</script>
+</head>
+<body>
+<div class="container mainPanel">
+  <h2><span id="title"></span><span class="mlm remark">by: <span id="author"></span></span></h2>
+  <div><span class="declare">免责声明：本工具仅用于学习研究目的，任何使用本工具造成的影响与后果均由使用者全权负责！</span></div>
+  <div class="mts">
+    <div class="toolbar centerToolbar bigFont">
+      <label for="gridSize">方格大小:</label><input id="gridSize" type="range" min="3" max="10" value="5" class="mlt"/><span id="gridSizeText" class="mlt"></span>
+    </div>
+    <div class="toolbar centerToolbar mts">
+      <button id="go" class="largeButton">开始</button><button id="reset" class="mlm largeButton">重置</button><span id="timerText" class="mlm largeFont"></span>
+    </div>
+    <table class="borderGrid leftRightAutoMargin mtm">
+      <tbody id="gridBody">
+      </tbody>
+    </table>
+  </div>
+  <h3>说明</h3>
+  <ul>
+    <li>随机生成舒尔特方格，专注力提升练习工具。</li>
+  </ul>
+  <div class="mts"><a id="saveMe" href="javascript:;"></a> (保存的html文件可使用支持HTML5的浏览器打开)</div>
+  <table id="verHis" class="mts remark"></table>
+</div>
+</body>
+</html>
