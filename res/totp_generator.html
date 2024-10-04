@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style type="text/css">
+*{box-sizing:border-box;}
+body{margin:0;}
+button{padding:1px 3px;}
+table{border-collapse:collapse;}
+table tr th,table tr td{border:1px solid #7f7f7f;padding:2px 5px;}
+ul{margin:0;padding-left:25px;}
+.container{padding:10px 15px;}
+.declare{color:#ff3f3f;font-weight:bold;}
+.remark{color:#3f3f3f;font-family:'新宋体';font-size:0.8rem;}
+.noWrap{white-space:nowrap;word-break:keep-all;}
+.breakWord{overflow-wrap:break-word;}
+.mlt{margin-left:5px;}
+.mls{margin-left:8px;}
+.mlm{margin-left:15px;}
+.mlb{margin-left:30px;}
+.mrt{margin-right:5px;}
+.mrs{margin-right:8px;}
+.mrm{margin-right:15px;}
+.mrb{margin-right:30px;}
+.mtt{margin-top:5px;}
+.mts{margin-top:8px;}
+.mtm{margin-top:15px;}
+.mtb{margin-top:30px;}
+.mbt{margin-bottom:5px;}
+.mbs{margin-bottom:8px;}
+.mbm{margin-bottom:15px;}
+.mbb{margin-bottom:30px;}
+
+summary h3{display:inline;}
+.hbox{display:flex;align-items:center;}
+.vbox{display:flex;flex-direction:column;align-items:center;}
+.vbox.alignStart{align-items:start;}
+.iptForm input,.iptForm select{font-size:16px;}
+.errMsg{color:red;}
+.formLbl{width:100px;text-align:end;}
+.required{color:red;}
+.bigBtn{font-size:18px;}
+.actionBtn{width:28px;height:28px;font-family:'黑体';font-size:18px;font-weight:bold;padding:0;}
+.passcode{font-size:32px;font-weight:bold;}
+.toBeExpire{color:#FF7F00;}
+</style>
+<script type="text/javascript">
+/*
+Modify: Merge hmac-sha1, hmac-sha224, hmac-sha256, hmac-sha384, hmac-sha512, hmac-sha3 from CryptoJS v3.1.2
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+var CryptoJS=function(g,l){var e={},d=e.lib={},m=function(){},k=d.Base={extend:function(a){m.prototype=this;var c=new m;a&&c.mixIn(a);c.hasOwnProperty("init")||(c.init=function(){c.$super.init.apply(this,arguments)});c.init.prototype=c;c.$super=this;return c},create:function(){var a=this.extend();a.init.apply(a,arguments);return a},init:function(){},mixIn:function(a){for(var c in a)a.hasOwnProperty(c)&&(this[c]=a[c]);a.hasOwnProperty("toString")&&(this.toString=a.toString)},clone:function(){return this.init.prototype.extend(this)}},
+p=d.WordArray=k.extend({init:function(a,c){a=this.words=a||[];this.sigBytes=c!=l?c:4*a.length},toString:function(a){return(a||n).stringify(this)},concat:function(a){var c=this.words,q=a.words,f=this.sigBytes;a=a.sigBytes;this.clamp();if(f%4)for(var b=0;b<a;b++)c[f+b>>>2]|=(q[b>>>2]>>>24-8*(b%4)&255)<<24-8*((f+b)%4);else if(65535<q.length)for(b=0;b<a;b+=4)c[f+b>>>2]=q[b>>>2];else c.push.apply(c,q);this.sigBytes+=a;return this},clamp:function(){var a=this.words,c=this.sigBytes;a[c>>>2]&=4294967295<<
+32-8*(c%4);a.length=g.ceil(c/4)},clone:function(){var a=k.clone.call(this);a.words=this.words.slice(0);return a},random:function(a){for(var c=[],b=0;b<a;b+=4)c.push(4294967296*g.random()|0);return new p.init(c,a)}}),b=e.enc={},n=b.Hex={stringify:function(a){var c=a.words;a=a.sigBytes;for(var b=[],f=0;f<a;f++){var d=c[f>>>2]>>>24-8*(f%4)&255;b.push((d>>>4).toString(16));b.push((d&15).toString(16))}return b.join("")},parse:function(a){for(var c=a.length,b=[],f=0;f<c;f+=2)b[f>>>3]|=parseInt(a.substr(f,
+2),16)<<24-4*(f%8);return new p.init(b,c/2)}},j=b.Latin1={stringify:function(a){var c=a.words;a=a.sigBytes;for(var b=[],f=0;f<a;f++)b.push(String.fromCharCode(c[f>>>2]>>>24-8*(f%4)&255));return b.join("")},parse:function(a){for(var c=a.length,b=[],f=0;f<c;f++)b[f>>>2]|=(a.charCodeAt(f)&255)<<24-8*(f%4);return new p.init(b,c)}},h=b.Utf8={stringify:function(a){try{return decodeURIComponent(escape(j.stringify(a)))}catch(c){throw Error("Malformed UTF-8 data");}},parse:function(a){return j.parse(unescape(encodeURIComponent(a)))}},
+r=d.BufferedBlockAlgorithm=k.extend({reset:function(){this._data=new p.init;this._nDataBytes=0},_append:function(a){"string"==typeof a&&(a=h.parse(a));this._data.concat(a);this._nDataBytes+=a.sigBytes},_process:function(a){var c=this._data,b=c.words,f=c.sigBytes,d=this.blockSize,e=f/(4*d),e=a?g.ceil(e):g.max((e|0)-this._minBufferSize,0);a=e*d;f=g.min(4*a,f);if(a){for(var k=0;k<a;k+=d)this._doProcessBlock(b,k);k=b.splice(0,a);c.sigBytes-=f}return new p.init(k,f)},clone:function(){var a=k.clone.call(this);
+a._data=this._data.clone();return a},_minBufferSize:0});d.Hasher=r.extend({cfg:k.extend(),init:function(a){this.cfg=this.cfg.extend(a);this.reset()},reset:function(){r.reset.call(this);this._doReset()},update:function(a){this._append(a);this._process();return this},finalize:function(a){a&&this._append(a);return this._doFinalize()},blockSize:16,_createHelper:function(a){return function(b,d){return(new a.init(d)).finalize(b)}},_createHmacHelper:function(a){return function(b,d){return(new s.HMAC.init(a,
+d)).finalize(b)}}});var s=e.algo={};return e}(Math);
+// HMAC-SHA1
+(function(){var g=CryptoJS,l=g.lib,e=l.WordArray,d=l.Hasher,m=[],l=g.algo.SHA1=d.extend({_doReset:function(){this._hash=new e.init([1732584193,4023233417,2562383102,271733878,3285377520])},_doProcessBlock:function(d,e){for(var b=this._hash.words,n=b[0],j=b[1],h=b[2],g=b[3],l=b[4],a=0;80>a;a++){if(16>a)m[a]=d[e+a]|0;else{var c=m[a-3]^m[a-8]^m[a-14]^m[a-16];m[a]=c<<1|c>>>31}c=(n<<5|n>>>27)+l+m[a];c=20>a?c+((j&h|~j&g)+1518500249):40>a?c+((j^h^g)+1859775393):60>a?c+((j&h|j&g|h&g)-1894007588):c+((j^h^
+g)-899497514);l=g;g=h;h=j<<30|j>>>2;j=n;n=c}b[0]=b[0]+n|0;b[1]=b[1]+j|0;b[2]=b[2]+h|0;b[3]=b[3]+g|0;b[4]=b[4]+l|0},_doFinalize:function(){var d=this._data,e=d.words,b=8*this._nDataBytes,g=8*d.sigBytes;e[g>>>5]|=128<<24-g%32;e[(g+64>>>9<<4)+14]=Math.floor(b/4294967296);e[(g+64>>>9<<4)+15]=b;d.sigBytes=4*e.length;this._process();return this._hash},clone:function(){var e=d.clone.call(this);e._hash=this._hash.clone();return e}});g.SHA1=d._createHelper(l);g.HmacSHA1=d._createHmacHelper(l)})();
+// HMAC-SHA256
+(function(h){for(var s=CryptoJS,f=s.lib,g=f.WordArray,q=f.Hasher,f=s.algo,m=[],r=[],l=function(a){return 4294967296*(a-(a|0))|0},k=2,n=0;64>n;){var j;a:{j=k;for(var u=h.sqrt(j),t=2;t<=u;t++)if(!(j%t)){j=!1;break a}j=!0}j&&(8>n&&(m[n]=l(h.pow(k,0.5))),r[n]=l(h.pow(k,1/3)),n++);k++}var a=[],f=f.SHA256=q.extend({_doReset:function(){this._hash=new g.init(m.slice(0))},_doProcessBlock:function(c,d){for(var b=this._hash.words,e=b[0],f=b[1],g=b[2],j=b[3],h=b[4],m=b[5],n=b[6],q=b[7],p=0;64>p;p++){if(16>p)a[p]=
+c[d+p]|0;else{var k=a[p-15],l=a[p-2];a[p]=((k<<25|k>>>7)^(k<<14|k>>>18)^k>>>3)+a[p-7]+((l<<15|l>>>17)^(l<<13|l>>>19)^l>>>10)+a[p-16]}k=q+((h<<26|h>>>6)^(h<<21|h>>>11)^(h<<7|h>>>25))+(h&m^~h&n)+r[p]+a[p];l=((e<<30|e>>>2)^(e<<19|e>>>13)^(e<<10|e>>>22))+(e&f^e&g^f&g);q=n;n=m;m=h;h=j+k|0;j=g;g=f;f=e;e=k+l|0}b[0]=b[0]+e|0;b[1]=b[1]+f|0;b[2]=b[2]+g|0;b[3]=b[3]+j|0;b[4]=b[4]+h|0;b[5]=b[5]+m|0;b[6]=b[6]+n|0;b[7]=b[7]+q|0},_doFinalize:function(){var a=this._data,d=a.words,b=8*this._nDataBytes,e=8*a.sigBytes;
+d[e>>>5]|=128<<24-e%32;d[(e+64>>>9<<4)+14]=h.floor(b/4294967296);d[(e+64>>>9<<4)+15]=b;a.sigBytes=4*d.length;this._process();return this._hash},clone:function(){var a=q.clone.call(this);a._hash=this._hash.clone();return a}});s.SHA256=q._createHelper(f);s.HmacSHA256=q._createHmacHelper(f)})(Math);
+// HMAC-SHA224
+(function(){var j=CryptoJS,k=j.lib.WordArray,c=j.algo,e=c.SHA256,c=c.SHA224=e.extend({_doReset:function(){this._hash=new k.init([3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428])},_doFinalize:function(){var c=e._doFinalize.call(this);c.sigBytes-=4;return c}});j.SHA224=e._createHelper(c);j.HmacSHA224=e._createHmacHelper(c)})();
+// HMAC-SHA512
+(function(a){var j=CryptoJS,c=j.lib,b=c.Base,f=c.WordArray,j=j.x64={};j.Word=b.extend({init:function(a,b){this.high=a;this.low=b}});j.WordArray=b.extend({init:function(b,c){b=this.words=b||[];this.sigBytes=c!=a?c:8*b.length},toX32:function(){for(var a=this.words,b=a.length,c=[],m=0;m<b;m++){var y=a[m];c.push(y.high);c.push(y.low)}return f.create(c,this.sigBytes)},clone:function(){for(var a=b.clone.call(this),c=a.words=this.words.slice(0),k=c.length,f=0;f<k;f++)c[f]=c[f].clone();return a}})})();
+(function(){function a(){return f.create.apply(f,arguments)}for(var j=CryptoJS,c=j.lib.Hasher,b=j.x64,f=b.Word,l=b.WordArray,b=j.algo,u=[a(1116352408,3609767458),a(1899447441,602891725),a(3049323471,3964484399),a(3921009573,2173295548),a(961987163,4081628472),a(1508970993,3053834265),a(2453635748,2937671579),a(2870763221,3664609560),a(3624381080,2734883394),a(310598401,1164996542),a(607225278,1323610764),a(1426881987,3590304994),a(1925078388,4068182383),a(2162078206,991336113),a(2614888103,633803317),
+a(3248222580,3479774868),a(3835390401,2666613458),a(4022224774,944711139),a(264347078,2341262773),a(604807628,2007800933),a(770255983,1495990901),a(1249150122,1856431235),a(1555081692,3175218132),a(1996064986,2198950837),a(2554220882,3999719339),a(2821834349,766784016),a(2952996808,2566594879),a(3210313671,3203337956),a(3336571891,1034457026),a(3584528711,2466948901),a(113926993,3758326383),a(338241895,168717936),a(666307205,1188179964),a(773529912,1546045734),a(1294757372,1522805485),a(1396182291,
+2643833823),a(1695183700,2343527390),a(1986661051,1014477480),a(2177026350,1206759142),a(2456956037,344077627),a(2730485921,1290863460),a(2820302411,3158454273),a(3259730800,3505952657),a(3345764771,106217008),a(3516065817,3606008344),a(3600352804,1432725776),a(4094571909,1467031594),a(275423344,851169720),a(430227734,3100823752),a(506948616,1363258195),a(659060556,3750685593),a(883997877,3785050280),a(958139571,3318307427),a(1322822218,3812723403),a(1537002063,2003034995),a(1747873779,3602036899),
+a(1955562222,1575990012),a(2024104815,1125592928),a(2227730452,2716904306),a(2361852424,442776044),a(2428436474,593698344),a(2756734187,3733110249),a(3204031479,2999351573),a(3329325298,3815920427),a(3391569614,3928383900),a(3515267271,566280711),a(3940187606,3454069534),a(4118630271,4000239992),a(116418474,1914138554),a(174292421,2731055270),a(289380356,3203993006),a(460393269,320620315),a(685471733,587496836),a(852142971,1086792851),a(1017036298,365543100),a(1126000580,2618297676),a(1288033470,
+3409855158),a(1501505948,4234509866),a(1607167915,987167468),a(1816402316,1246189591)],k=[],m=0;80>m;m++)k[m]=a();b=b.SHA512=c.extend({_doReset:function(){this._hash=new l.init([new f.init(1779033703,4089235720),new f.init(3144134277,2227873595),new f.init(1013904242,4271175723),new f.init(2773480762,1595750129),new f.init(1359893119,2917565137),new f.init(2600822924,725511199),new f.init(528734635,4215389547),new f.init(1541459225,327033209)])},_doProcessBlock:function(a,b){for(var c=this._hash.words,
+f=c[0],j=c[1],d=c[2],l=c[3],e=c[4],m=c[5],N=c[6],c=c[7],aa=f.high,O=f.low,ba=j.high,P=j.low,ca=d.high,Q=d.low,da=l.high,R=l.low,ea=e.high,S=e.low,fa=m.high,T=m.low,ga=N.high,U=N.low,ha=c.high,V=c.low,r=aa,n=O,G=ba,E=P,H=ca,F=Q,Y=da,I=R,s=ea,p=S,W=fa,J=T,X=ga,K=U,Z=ha,L=V,t=0;80>t;t++){var A=k[t];if(16>t)var q=A.high=a[b+2*t]|0,g=A.low=a[b+2*t+1]|0;else{var q=k[t-15],g=q.high,v=q.low,q=(g>>>1|v<<31)^(g>>>8|v<<24)^g>>>7,v=(v>>>1|g<<31)^(v>>>8|g<<24)^(v>>>7|g<<25),C=k[t-2],g=C.high,h=C.low,C=(g>>>19|
+h<<13)^(g<<3|h>>>29)^g>>>6,h=(h>>>19|g<<13)^(h<<3|g>>>29)^(h>>>6|g<<26),g=k[t-7],$=g.high,B=k[t-16],w=B.high,B=B.low,g=v+g.low,q=q+$+(g>>>0<v>>>0?1:0),g=g+h,q=q+C+(g>>>0<h>>>0?1:0),g=g+B,q=q+w+(g>>>0<B>>>0?1:0);A.high=q;A.low=g}var $=s&W^~s&X,B=p&J^~p&K,A=r&G^r&H^G&H,ka=n&E^n&F^E&F,v=(r>>>28|n<<4)^(r<<30|n>>>2)^(r<<25|n>>>7),C=(n>>>28|r<<4)^(n<<30|r>>>2)^(n<<25|r>>>7),h=u[t],la=h.high,ia=h.low,h=L+((p>>>14|s<<18)^(p>>>18|s<<14)^(p<<23|s>>>9)),w=Z+((s>>>14|p<<18)^(s>>>18|p<<14)^(s<<23|p>>>9))+(h>>>
+0<L>>>0?1:0),h=h+B,w=w+$+(h>>>0<B>>>0?1:0),h=h+ia,w=w+la+(h>>>0<ia>>>0?1:0),h=h+g,w=w+q+(h>>>0<g>>>0?1:0),g=C+ka,A=v+A+(g>>>0<C>>>0?1:0),Z=X,L=K,X=W,K=J,W=s,J=p,p=I+h|0,s=Y+w+(p>>>0<I>>>0?1:0)|0,Y=H,I=F,H=G,F=E,G=r,E=n,n=h+g|0,r=w+A+(n>>>0<h>>>0?1:0)|0}O=f.low=O+n;f.high=aa+r+(O>>>0<n>>>0?1:0);P=j.low=P+E;j.high=ba+G+(P>>>0<E>>>0?1:0);Q=d.low=Q+F;d.high=ca+H+(Q>>>0<F>>>0?1:0);R=l.low=R+I;l.high=da+Y+(R>>>0<I>>>0?1:0);S=e.low=S+p;e.high=ea+s+(S>>>0<p>>>0?1:0);T=m.low=T+J;m.high=fa+W+(T>>>0<J>>>0?1:
+0);U=N.low=U+K;N.high=ga+X+(U>>>0<K>>>0?1:0);V=c.low=V+L;c.high=ha+Z+(V>>>0<L>>>0?1:0)},_doFinalize:function(){var a=this._data,b=a.words,c=8*this._nDataBytes,f=8*a.sigBytes;b[f>>>5]|=128<<24-f%32;b[(f+128>>>10<<5)+30]=Math.floor(c/4294967296);b[(f+128>>>10<<5)+31]=c;a.sigBytes=4*b.length;this._process();return this._hash.toX32()},clone:function(){var a=c.clone.call(this);a._hash=this._hash.clone();return a},blockSize:32});j.SHA512=c._createHelper(b);j.HmacSHA512=c._createHmacHelper(b)})();
+// HMAC-SHA384
+(function(){var a=CryptoJS,d=a.x64,c=d.Word,b=d.WordArray,d=a.algo,f=d.SHA512,d=d.SHA384=f.extend({_doReset:function(){this._hash=new b.init([new c.init(3418070365,3238371032),new c.init(1654270250,914150663),new c.init(2438529370,812702999),new c.init(355462360,4144912697),new c.init(1731405415,4290775857),new c.init(2394180231,1750603025),new c.init(3675008525,1694076839),new c.init(1203062813,3204075428)])},_doFinalize:function(){var a=f._doFinalize.call(this);a.sigBytes-=16;return a}});a.SHA384=
+f._createHelper(d);a.HmacSHA384=f._createHmacHelper(d)})();
+// HMAC-SHA3
+(function(q){for(var f=CryptoJS,c=f.lib,d=c.WordArray,v=c.Hasher,s=f.x64.Word,c=f.algo,t=[],w=[],r=[],g=1,n=0,u=0;24>u;u++){t[g+5*n]=(u+1)*(u+2)/2%64;var x=(2*g+3*n)%5,g=n%5,n=x}for(g=0;5>g;g++)for(n=0;5>n;n++)w[g+5*n]=n+5*((2*g+3*n)%5);g=1;for(n=0;24>n;n++){for(var a=x=u=0;7>a;a++){if(g&1){var b=(1<<a)-1;32>b?x^=1<<b:u^=1<<b-32}g=g&128?g<<1^113:g<<1}r[n]=s.create(u,x)}for(var e=[],g=0;25>g;g++)e[g]=s.create();c=c.SHA3=v.extend({cfg:v.cfg.extend({outputLength:512}),_doReset:function(){for(var a=this._state=
+[],b=0;25>b;b++)a[b]=new s.init;this.blockSize=(1600-2*this.cfg.outputLength)/32},_doProcessBlock:function(a,b){for(var c=this._state,g=this.blockSize/2,k=0;k<g;k++){var d=a[b+2*k],l=a[b+2*k+1],d=(d<<8|d>>>24)&16711935|(d<<24|d>>>8)&4278255360,l=(l<<8|l>>>24)&16711935|(l<<24|l>>>8)&4278255360,h=c[k];h.high^=l;h.low^=d}for(g=0;24>g;g++){for(k=0;5>k;k++){for(var f=d=0,m=0;5>m;m++)h=c[k+5*m],d^=h.high,f^=h.low;h=e[k];h.high=d;h.low=f}for(k=0;5>k;k++){h=e[(k+4)%5];d=e[(k+1)%5];l=d.high;m=d.low;d=h.high^
+(l<<1|m>>>31);f=h.low^(m<<1|l>>>31);for(m=0;5>m;m++)h=c[k+5*m],h.high^=d,h.low^=f}for(l=1;25>l;l++)h=c[l],k=h.high,h=h.low,m=t[l],32>m?(d=k<<m|h>>>32-m,f=h<<m|k>>>32-m):(d=h<<m-32|k>>>64-m,f=k<<m-32|h>>>64-m),h=e[w[l]],h.high=d,h.low=f;h=e[0];k=c[0];h.high=k.high;h.low=k.low;for(k=0;5>k;k++)for(m=0;5>m;m++)l=k+5*m,h=c[l],d=e[l],l=e[(k+1)%5+5*m],f=e[(k+2)%5+5*m],h.high=d.high^~l.high&f.high,h.low=d.low^~l.low&f.low;h=c[0];k=r[g];h.high^=k.high;h.low^=k.low}},_doFinalize:function(){var a=this._data,
+b=a.words,c=8*a.sigBytes,e=32*this.blockSize;b[c>>>5]|=1<<24-c%32;b[(q.ceil((c+1)/e)*e>>>5)-1]|=128;a.sigBytes=4*b.length;this._process();for(var a=this._state,b=this.cfg.outputLength/8,c=b/8,e=[],g=0;g<c;g++){var f=a[g],l=f.high,f=f.low,l=(l<<8|l>>>24)&16711935|(l<<24|l>>>8)&4278255360,f=(f<<8|f>>>24)&16711935|(f<<24|f>>>8)&4278255360;e.push(f);e.push(l)}return new d.init(e,b)},clone:function(){for(var a=v.clone.call(this),b=a._state=this._state.slice(0),c=0;25>c;c++)b[c]=b[c].clone();return a}});
+f.SHA3=v._createHelper(c);f.HmacSHA3=v._createHmacHelper(c)})(Math);
+// finallize
+(function(){var a=CryptoJS,j=a.enc.Utf8;a.algo.HMAC=a.lib.Base.extend({init:function(a,b){a=this._hasher=new a.init;"string"==typeof b&&(b=j.parse(b));var f=a.blockSize,l=4*f;b.sigBytes>l&&(b=a.finalize(b));b.clamp();for(var u=this._oKey=b.clone(),k=this._iKey=b.clone(),m=u.words,y=k.words,z=0;z<f;z++)m[z]^=1549556828,y[z]^=909522486;u.sigBytes=k.sigBytes=l;this.reset()},reset:function(){var a=this._hasher;a.reset();a.update(this._iKey)},update:function(a){this._hasher.update(a);return this},finalize:function(a){var b=
+this._hasher;a=b.finalize(a);b.reset();return b.finalize(this._oKey.clone().concat(a))}})})();
+</script>
+<script type="text/javascript">
+(()=>{
+
+const DOM={};
+const Kit={};
+
+(()=>{
+  (obj=>{
+    const desc={
+      enumerable:false,
+      configurable:false,
+      writable:false
+    };
+    const _dp=(o,k,v)=>{
+      desc.value=v;
+      Object.defineProperty(o,k,desc);
+    };
+    const dp=(k,v)=>_dp(obj,k,v);
+    const fcc=String.fromCharCode;
+    dp('dp',_dp);
+    dp('empty',v=>v==null||v==='');
+    dp('notEmpty',v=>!obj.empty(v));
+    dp('fcc',fcc);
+    dp('byid',id=>document.getElementById(id));
+    dp('celmt',name=>document.createElement(name));
+    dp('ctext',text=>document.createTextNode(text));
+    dp('setText',(dom,text)=>{
+      dom.innerHTML='';
+      obj.notEmpty(text)&&dom.appendChild(obj.ctext(text));
+    });
+    dp('excp',(msg,cause)=>{
+      const excp={};
+      Object.defineProperty(excp,'msg',{
+        enumerable:true,
+        configurable:false,
+        writable:false,
+        value:msg
+      });
+      Object.defineProperty(excp,'cause',{
+        enumerable:true,
+        configurable:false,
+        writable:false,
+        value:cause
+      });
+      return excp;
+    });
+    dp('preProm',exec=>new Promise(exec));
+    dp('serial',prePms=>async()=>{
+      let ret=[];
+      for(prePm of prePms){
+        ret.push(await prePm());
+      }
+      return ret;
+    });
+    dp('parallel',prePms=>()=>Promise.all(prePms.map(prePm=>prePm())));
+    dp('lpad',(str,pad,len)=>{
+      while(str.length<len){
+        str=pad+str;
+      }
+      return str.substring(str.length-len);
+    });
+    dp('rpad',(str,pad,len)=>{
+      while(str.length<len){
+        str+=pad;
+      }
+      return str.substring(0,len);
+    });
+    dp('utf8En',text=>{
+      let code='';
+      for(let i=0;i<text.length;i++){
+        const c=text.charCodeAt(i);
+        code+=c<0x80?fcc(c):c<0x800?(fcc((c>>>6)|0xC0)+fcc(c&0x3F|0x80)):(fcc((c>>>12)|0xE0)+fcc((c>>>6)&0x3F|0x80)+fcc(c&0x3F|0x80));
+      }
+      return code;
+    });
+    dp('utf8De',code=>{
+      let text='';
+      for(let i=0;i<code.length;i++){
+        const c=code.charCodeAt(i);
+        text+=c<0x80?fcc(c):c<0xE0?fcc(((c&0x1F)<<6)|(code.charCodeAt(++i)&0x3F)):fcc(((c&0x0F)<<12)|((code.charCodeAt(++i)&0x3F)<<6)|(code.charCodeAt(++i)&0x3F));
+      }
+      return text;
+    });
+    dp('loadFile',(load,emsg)=>obj.preProm((ok,err)=>{
+      try{
+        const r=new FileReader();
+        r.onloadend=e=>{
+          if(e.target.error){
+            err(obj.excp(emsg,e.target.error));
+          }else{
+            ok(e.target.result);
+          }
+        };
+        load(r);
+      }catch(t){
+        err(obj.excp(emsg,t));
+      }
+    }));
+    dp('loadAsUrl',(file,emsg)=>obj.loadFile(r=>r.readAsDataURL(file),emsg));
+    dp('loadAsBuff',(file,emsg)=>obj.loadFile(r=>r.readAsArrayBuffer(file),emsg));
+  })(Kit);
+
+  const VerHis=(kit=>{
+    let _data=null;
+    const obj={};
+    const dp=(k,v)=>kit.dp(obj,k,v);
+    // data format:
+    // {
+    //   cols: {
+    //     titles: ['Col 1','Col 2','Col 3'],
+    //     thClses: ['alignCenter','',''],
+    //     tdClses: ['nowrap','nowrap','']
+    //   },
+    //   rows: {
+    //     rowData: [
+    //       ['Key 1','Date 1','Comments 1'],
+    //       ['Key 2','Date 2','Comments 2'],
+    //       ['Key 3','Date 3',{html:'Comments 3-1<br/>Comments 3-2'}]
+    //     ],
+    //     trClses: ['even','odd','even']
+    //   }
+    // }
+    dp('init',(tbl,data)=>{
+      _data=data;
+      tbl.innerHTML='';
+      if((data?.cols?.titles?.length||0)<=0){
+        return;
+      }
+      const thead=kit.celmt('thead');
+      const tr=kit.celmt('tr');
+      data.cols.titles.forEach((title,c)=>{
+        const th=kit.celmt('th');
+        kit.notEmpty(title)&&kit.setText(th,title);
+        data.cols.thClses&&kit.notEmpty(data.cols.thClses[c])&&(th.className=data.cols.thClses[c]);
+        tr.appendChild(th);
+      });
+      thead.appendChild(tr);
+      tbl.appendChild(thead);
+      const tbody=kit.celmt('tbody');
+      data?.rows?.rowData&&data.rows.rowData.forEach((ctnts,r)=>{
+        const tr=kit.celmt('tr');
+        ctnts&&ctnts.forEach((ctnt,c)=>{
+          const td=kit.celmt('td');
+          kit.notEmpty(ctnt)&&(typeof ctnt==='string'?kit.setText(td,ctnt):(ctnt.html&&(td.innerHTML=ctnt.html)));
+          data.cols.tdClses&&kit.notEmpty(data.cols.tdClses[c])&&(td.className=data.cols.tdClses[c]);
+          tr.appendChild(td);
+        });
+        data.rows.trClses&&kit.notEmpty(data.rows.trClses[r])&&(tr.className=data.rows.trClses[r]);
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+    });
+    dp('getCtnt',(r,c)=>_data?.rows?.rowData&&_data.rows.rowData[r]&&_data.rows.rowData[r][c]);
+    return obj;
+  })(Kit);
+
+  const initDom=dom=>document.body.querySelectorAll('*').forEach(e=>e.id&&(dom[e.id]=e));
+  const initSaveMe=htmlCtnt=>{
+    DOM.saveMe.href=URL.createObjectURL(new Blob([htmlCtnt],{type:'text/html'}));
+    DOM.saveMe.download=META.download;
+    Kit.setText(DOM.saveMe,'保存'+META.title);
+  };
+  const initVerHis=()=>{
+    VerHis.init(DOM.verHis,{
+      cols:{titles:['版本','日期','备注'],tdClses:['noWrap','noWrap','wordWrap']},
+      rows:{rowData:META.versionHistory}
+    });
+    const title=`${META.title} ${VerHis.getCtnt(META.versionHistory.length-1,0)}`;
+    document.title=title;
+    Kit.setText(DOM.title,title);
+    Kit.setText(DOM.author,META.author);
+  };
+  const afterLoad=selfHtml=>{
+    initDom(DOM);
+    initSaveMe(selfHtml);
+    initVerHis();
+    init?.();
+  };
+  window.onload=()=>{
+    const selfHtml='<!DOCTYPE html>'+document.documentElement.outerHTML;
+    setTimeout(()=>afterLoad(selfHtml),0);
+  };
+
+  // Update this META data according to the APP info.
+  const META={
+    title:'TOTP Generator',
+    author:'Royce Wang',
+    download:'totp_generator.html',
+    versionHistory:[
+      ['1.0','2024-09-20',{html:'初始创建。'}]
+    ]
+  };
+})();
+
+// ========= custom codes
+const init=()=>{
+  // Initialize the APP at here.
+  initIptForm();
+  addInitData();
+  updateActionBtns();
+  updateCountDown();
+};
+
+const _INIT_DATA=[
+  'otpauth://totp/test-app:test-account?secret=AAAABBBBCCCCDDDDEEEEFFFFGGGG2222&algorithm=SHA256&period=20&digits=6&issuer=test-issuer'
+];
+const KEY_SECRET='secret';
+const KEY_APP='app';
+const KEY_ACCOUNT='account';
+const KEY_ALGORITHM='algorithm';
+const KEY_PERIOD='period';
+const KEY_DIGITS='digits';
+const KEY_ISSUER='issuer';
+const KEYS=[KEY_SECRET,KEY_APP,KEY_ACCOUNT,KEY_ALGORITHM,KEY_PERIOD,KEY_DIGITS,KEY_ISSUER];
+const ALGORITHMS=['SHA1','SHA224','SHA256','SHA384','SHA512','SHA3'];
+const ALGORITHM_PRE='Hmac';
+const PERIOD_MIN=10;
+const PERIOD_MAX=600;
+const DIGITS_MIN=3;
+const DIGITS_MAX=9;
+const DEF_ALGORITHM='SHA1';
+const DEF_PERIOD=30;
+const DEF_DIGITS=6;
+const BASE_TS=0;
+const Totp=(kit=>{
+  const URL_PRE='otpauth://totp/';
+  const DEF_VALS={};
+  DEF_VALS[KEY_ALGORITHM]=DEF_ALGORITHM;
+  DEF_VALS[KEY_PERIOD]=String(DEF_PERIOD);
+  DEF_VALS[KEY_DIGITS]=String(DEF_DIGITS);
+  const obj={};
+  const dp=(k,v)=>kit.dp(obj,k,v);
+  const BIT_UNIT=5;
+  const longToWordArr=n=>new CryptoJS.lib.WordArray.init([(n/0x100000000)&0xFFFFFFFF,n%0x100000000],8);
+  const b32ToWordArr=s=>{
+    const l=s.length;
+    let words=[];
+    let buff=0;
+    let ebit=0;
+    let bidx=0;
+    for(let i=0;i<l;i++){
+      const c=s.charCodeAt(i);
+      const notLetter=c<65||c>90;
+      if(notLetter&&(c<50||c>55)){
+        throw new Error(`Illegal secret '${s}': Illegal character '${Kit.fcc(c)}' at index ${i}.`);
+      }
+      buff=(buff<<BIT_UNIT)|(notLetter?(c-24):(c-65));
+      ebit+=BIT_UNIT;
+      if(ebit>=8){
+        words[bidx>>>2]|=((buff>>>(ebit-8))&0xFF)<<(24-((bidx%4)<<3));
+        bidx++;
+        ebit-=8;
+      }
+    }
+    return new CryptoJS.lib.WordArray.init(words,bidx);
+  };
+  const calcTimeCode=(ts,baseTs,interval)=>Math.floor((ts-baseTs)/interval);
+  const calcHMAC=(algorithm,secret,timeCode)=>CryptoJS[`${ALGORITHM_PRE}${algorithm}`](longToWordArr(timeCode),b32ToWordArr(secret)).toString();
+  const truncateCode=(hash,digits)=>{
+    const offset=parseInt(hash.charAt(hash.length-1),16)<<1;
+    return kit.lpad(String((parseInt(hash.substring(offset,offset+8),16)&0x7FFFFFFF)%(10**digits)),'0',digits);
+  };
+  const buildQueryToken=(key,val,first)=>val?`${first?'?':'&'}${key}=${encodeURIComponent(val)}`:'';
+  const fillOTPWithQueryParam=(obj,key,val)=>{
+    if(key&&val){
+      try{
+        obj[key]=decodeURIComponent(val);
+      }catch(err){
+        throw new Error(`Illegal URL: Invalid query parameter ${key}: '${val}'.`,{cause:err});
+      }
+    }
+  };
+  dp('gen',(algorithm,secret,ts,baseTs,interval,digits)=>{
+    if(!ALGORITHMS.includes(algorithm)){
+      throw new Error(`Illegal algorithm '${algorithm}': algorithm must be one of the following: ${ALGORITHMS}.`);
+    }
+    if(secret.length%8>0){
+      throw new Error(`Illegal secret '${secret}': Illegal length ${secret.length}. (Length must be multiple of 8.)`);
+    }
+    if(ts<baseTs){
+      throw new Error(`Illegal timestamp '${ts}' and base timestamp '${baseTs}': timestamp cannot be earlier than base timestamp.`);
+    }
+    if(interval<PERIOD_MIN*1000||interval>PERIOD_MAX*1000){
+      throw new Error(`Illegal interval '${interval}': interval must be between ${PERIOD_MIN*1000} and ${PERIOD_MAX*1000} milliseconds.`);
+    }
+    if(digits<DIGITS_MIN||digits>DIGITS_MAX){
+      throw new Error(`Illegal digits '${digits}': digits must be between ${DIGITS_MIN} and ${DIGITS_MAX}.`);
+    }
+    return truncateCode(calcHMAC(algorithm,secret,calcTimeCode(ts,baseTs,interval)),digits);
+  });
+  dp('toOTPURL',(totpObj)=>{
+    if(!totpObj?.[KEY_SECRET]){
+      throw new Error(`Missing argument: secret.`);
+    }
+    let url=URL_PRE;
+    if(totpObj[KEY_APP]||totpObj[KEY_ACCOUNT]){
+      url+=`${totpObj[KEY_APP]?encodeURIComponent(totpObj[KEY_APP]):''}:${totpObj[KEY_ACCOUNT]?encodeURIComponent(totpObj[KEY_ACCOUNT]):''}`;
+    }
+    url+=buildQueryToken(KEY_SECRET,totpObj[KEY_SECRET],true);
+    url+=buildQueryToken(KEY_ALGORITHM,totpObj[KEY_ALGORITHM]);
+    url+=buildQueryToken(KEY_PERIOD,totpObj[KEY_PERIOD]);
+    url+=buildQueryToken(KEY_DIGITS,totpObj[KEY_DIGITS]);
+    url+=buildQueryToken(KEY_ISSUER,totpObj[KEY_ISSUER]);
+    return url;
+  });
+  dp('fromOTPURL',(url)=>{
+    if(!url?.startsWith(URL_PRE)){
+      throw new Error(`Illegal URL: URL must start with '${URL_PRE}'.`);
+    }
+    const totpObj={};
+    const parts=url.substring(URL_PRE.length).split('?');
+    const appAndAccountParts=parts[0]?.split(':');
+    const queryParts=parts[1]?.split('&');
+    const app=appAndAccountParts[0];
+    const account=appAndAccountParts[1];
+    fillOTPWithQueryParam(totpObj,KEY_APP,app);
+    fillOTPWithQueryParam(totpObj,KEY_ACCOUNT,account);
+    queryParts?.forEach(queryPart=>{
+      const paramEntity=queryPart.split('=');
+      const key=paramEntity[0];
+      const val=paramEntity[1];
+      if(KEYS.includes(paramEntity[0])){
+        fillOTPWithQueryParam(totpObj,paramEntity[0],paramEntity[1]);
+      }
+    });
+    Object.entries(DEF_VALS).forEach(entry=>totpObj[entry[0]]=totpObj[entry[0]]||entry[1]);
+    if(!totpObj[KEY_SECRET]){
+      throw new Error(`Illegal URL: URL must contains ${KEY_SECRET} as query parameter.`);
+    }else if(totpObj[KEY_SECRET].length%8>0){
+      throw new Error(`Illegal URL: the length of ${KEY_SECRET} parameter must be multiple of 8.`);
+    }
+    return totpObj;
+  });
+  return obj;
+})(Kit);
+
+const initIptForm=()=>{
+  ALGORITHMS.forEach(alg=>{
+    const opt=document.createElement('option');
+    opt.value=alg;
+    opt.innerHTML=alg;
+    if(alg===DEF_ALGORITHM){
+      opt.selected=true;
+    }
+    DOM['iptAlgorithm'].append(opt);
+  });
+  DOM['iptPeriod'].setAttribute('min',PERIOD_MIN);
+  DOM['iptPeriod'].setAttribute('max',PERIOD_MAX);
+  DOM['iptPeriod'].setAttribute('value',DEF_PERIOD);
+  DOM['iptPeriod'].addEventListener('input',updateIptPeriodTxt);
+  DOM['iptPeriodDec'].addEventListener('click',decIptPeriod);
+  DOM['iptPeriodInc'].addEventListener('click',incIptPeriod);
+  DOM['iptDigits'].min=DIGITS_MIN;
+  DOM['iptDigits'].max=DIGITS_MAX;
+  DOM['iptDigits'].value=DEF_DIGITS;
+  DOM['iptDigits'].addEventListener('input',updateIptDigitsTxt);
+  DOM['iptDigitsDec'].addEventListener('click',decIptDigits);
+  DOM['iptDigitsInc'].addEventListener('click',incIptDigits);
+  DOM['addBtn'].addEventListener('click',addElmt);
+  DOM['resetBtn'].addEventListener('click',resetIptForm);
+  updateFormTxt();
+};
+const decIptPeriod=e=>decIptVal('iptPeriod',PERIOD_MIN,'iptPeriodTxt','s');
+const incIptPeriod=e=>incIptVal('iptPeriod',PERIOD_MAX,'iptPeriodTxt','s');
+const updateIptPeriodTxt=e=>updateIptTxt('iptPeriod','iptPeriodTxt','s');
+const decIptDigits=e=>decIptVal('iptDigits',DIGITS_MIN,'iptDigitsTxt');
+const incIptDigits=e=>incIptVal('iptDigits',DIGITS_MAX,'iptDigitsTxt');
+const updateIptDigitsTxt=e=>updateIptTxt('iptDigits','iptDigitsTxt');
+const decIptVal=(ipt,min,txt,suf)=>{
+  const val=parseInt(DOM[ipt].value);
+  if(val>min){
+    DOM[ipt].value=val-1;
+    updateIptTxt(ipt,txt,suf);
+  }
+};
+const incIptVal=(ipt,max,txt,suf)=>{
+  const val=parseInt(DOM[ipt].value);
+  if(val<max){
+    DOM[ipt].value=val+1;
+    updateIptTxt(ipt,txt,suf);
+  }
+};
+const updateIptTxt=(ipt,txt,suf)=>DOM[txt].innerHTML=`${DOM[ipt].value}${suf||''}`;
+const updateFormTxt=()=>{
+  updateIptPeriodTxt();
+  updateIptDigitsTxt();
+};
+const addElmt=e=>{
+  const secret=DOM['iptSecret'].value;
+  clearErrMsg();
+  if(!secret){
+    showErrMsg('Secret不可为空！');
+    return;
+  }else if(secret.length%8>0){
+    showErrMsg('Secret长度有误(必须是8字节的整数倍)！');
+    return;
+  }
+  for(let i=0;i<secret.length;i++){
+    const c=secret.charCodeAt(i);
+    const notLetter=c<65||c>90;
+    if(notLetter&&(c<50||c>55)){
+      showErrMsg(`Secret包含无效字符'${Kit.fcc(c)}'(只允许大写字母及数字2-7)！`);
+      return;
+    }
+  }
+  const app=DOM['iptApp'].value;
+  const account=DOM['iptAccount'].value;
+  const algorithm=DOM['iptAlgorithm'].value;
+  const period=DOM['iptPeriod'].value;
+  const digits=DOM['iptDigits'].value;
+  const issuer=DOM['iptIssuer'].value;
+  addTotpElmt({secret,app,account,algorithm,period,digits,issuer});
+  DOM['addElmtPanel'].open=false;
+  const row=DOM['totpTblBody'].lastChild.previousElementSibling;
+  genPasscode(row);
+  refreshCountDown(row);
+  updateActionBtns();
+};
+const clearErrMsg=()=>{
+  DOM['errMsg'].innerHTML='';
+  DOM['errMsgBar'].style.display='none';
+};
+const showErrMsg=msg=>{
+  DOM['errMsg'].innerHTML='';
+  DOM['errMsg'].append(document.createTextNode(msg));
+  DOM['errMsgBar'].style.display='flex';
+};
+const resetIptForm=e=>{
+  DOM['addElmtForm'].reset();
+  clearErrMsg();
+  updateFormTxt();
+}
+
+const addInitData=()=>_INIT_DATA.forEach(url=>addTotpElmt(Totp.fromOTPURL(url)));
+const addTotpElmt=totpObj=>{
+  const row1=document.createElement('tr');
+  row1.innerHTML=DOM['tmplRow1'].innerHTML;
+  const row2=document.createElement('tr');
+  row2.innerHTML=DOM['tmplRow2'].innerHTML;
+  row1.dataset['key']='elmtRow';
+  KEYS.forEach(k=>totpObj[k]?(row1.dataset[k]=totpObj[k]):null);
+  row1.querySelector('[data-key="delBtn"]').addEventListener('click',delTotpElmt);
+  const titleTxt=row1.querySelector('[data-key="title"]');
+  const app=totpObj[KEY_APP];
+  const account=totpObj[KEY_ACCOUNT];
+  const title=app&&account?`${app} (${account})`:(app||(account?`(${account})`:null));
+  if(title){
+    titleTxt.innerHTML=title;
+  }
+  if(totpObj[KEY_ISSUER]){
+    titleTxt.title=totpObj[KEY_ISSUER];
+  }
+  row1.querySelector('[data-key="toTopBtn"]').addEventListener('click',elmtToTop);
+  row1.querySelector('[data-key="upBtn"]').addEventListener('click',elmtUp);
+  row1.querySelector('[data-key="downBtn"]').addEventListener('click',elmtDown);
+  row1.querySelector('[data-key="toBottomBtn"]').addEventListener('click',elmtToBottom);
+  DOM['totpTblBody'].append(row1,row2);
+};
+const delTotpElmt=e=>{
+  if(window.confirm('确定要删除此Passcode吗？')){
+    const rows=findEventRows(e);
+    rows.row2.remove();
+    rows.row1.remove();
+    rows=null;
+    updateActionBtns();
+  }
+};
+const elmtToTop=e=>{
+  const rows=findEventRows(e);
+  totpTblBody.insertBefore(rows.row2,totpTblBody.firstChild);
+  totpTblBody.insertBefore(rows.row1,totpTblBody.firstChild);
+  updateActionBtns();
+};
+const elmtUp=e=>{
+  const rows=findEventRows(e);
+  totpTblBody.insertBefore(rows.row2,rows.row1.previousElementSibling.previousElementSibling);
+  totpTblBody.insertBefore(rows.row1,rows.row2);
+  updateActionBtns();
+};
+const elmtDown=e=>{
+  const rows=findEventRows(e);
+  totpTblBody.insertBefore(rows.row2,rows.row2.nextElementSibling?.nextElementSibling?.nextElementSibling);
+  totpTblBody.insertBefore(rows.row1,rows.row2);
+  updateActionBtns();
+};
+const elmtToBottom=e=>{
+  const rows=findEventRows(e);
+  totpTblBody.insertBefore(rows.row1,null);
+  totpTblBody.insertBefore(rows.row2,null);
+  updateActionBtns();
+};
+const findEventRows=e=>{
+  const row1=e.target.parentElement.parentElement.parentElement;
+  const row2=row1.nextElementSibling;
+  return {row1,row2};
+};
+
+const updateActionBtns=()=>{
+  DOM['totpTblBody'].querySelectorAll('[data-key="elmtRow"]').forEach(row=>row.querySelectorAll('button.actionBtn').forEach(btn=>btn.disabled=false));
+  DOM['totpTblBody'].firstChild.querySelector('[data-key="toTopBtn"]').disabled=true;
+  DOM['totpTblBody'].firstChild.querySelector('[data-key="upBtn"]').disabled=true;
+  DOM['totpTblBody'].lastChild.previousElementSibling.querySelector('[data-key="downBtn"]').disabled=true;
+  DOM['totpTblBody'].lastChild.previousElementSibling.querySelector('[data-key="toBottomBtn"]').disabled=true;
+}
+const updateCountDown=()=>{
+  DOM['totpTblBody'].querySelectorAll('[data-key="elmtRow"]').forEach(row=>{
+    const need=needGen(row);
+    if(need){
+      genPasscode(row);
+    }
+    refreshCountDown(row);
+  });
+  setTimeout(updateCountDown,1000-Date.now()%1000);
+};
+const needGen=row=>{
+  const lastGen=row.dataset['lastGen'];
+  if(!lastGen){
+    return true;
+  }
+  return Date.now()>=(parseInt(lastGen)+parseInt(row.dataset['period']))*1000;
+};
+const genPasscode=row=>{
+  const ts=Date.now();
+  const row2=row.nextElementSibling;
+  const curPasscodeTxt=row2.querySelector('[data-key="curPasscode"]');
+  const nextPasscodeTxt=row2.querySelector('[data-key="nextPasscode"]');
+  const algorithm=row.dataset['algorithm'];
+  const secret=row.dataset['secret'];
+  const period=parseInt(row.dataset['period']);
+  const digits=parseInt(row.dataset['digits']);
+  const firstGen=!row.dataset['lastGen'];
+  const genTime=Math.floor(ts/1000);
+  const interval=period*1000;
+  row.dataset['lastGen']=genTime-(genTime%period);
+  const curPasscode=firstGen?Totp.gen(algorithm,secret,ts,BASE_TS,interval,digits):nextPasscodeTxt.innerHTML;
+  const nextPasscode=Totp.gen(algorithm,secret,ts+interval,BASE_TS,interval,digits);
+  curPasscodeTxt.innerHTML=curPasscode;
+  nextPasscodeTxt.innerHTML=nextPasscode;
+};
+const refreshCountDown=row=>{
+  const period=parseInt(row.dataset['period']);
+  const left=period-Math.floor(Date.now()/1000)%period;
+  const row2=row.nextElementSibling;
+  const timer=row2.querySelector('[data-key="timer"]');
+  const curPasscode=row2.querySelector('[data-key="curPasscode"]');
+  timer.innerHTML=`${left}s`;
+  if(left<=5){
+    timer.classList.add('toBeExpire');
+    curPasscode.classList.add('toBeExpire');
+  }else{
+    timer.classList.remove('toBeExpire');
+    curPasscode.classList.remove('toBeExpire');
+  }
+};
+
+})();
+</script>
+</head>
+<body>
+<div class="container mainPanel">
+  <h2><span id="title"></span><span class="mlm remark">by: <span id="author"></span></span></h2>
+  <div><span class="declare">免责声明：本工具仅用于学习研究目的，任何使用本工具造成的影响与后果均由使用者全权负责！</span></div>
+  <div class="mts">
+    <details id="addElmtPanel" class="mts mbm">
+      <summary><h3>添加Password</h3></summary>
+      <form id="addElmtForm" class="iptForm mts mbs">
+        <div class="vbox alignStart">
+          <div id="errMsgBar" class="hbox mbt" style="display:none;"><span id="errMsg" class="errMsg"></span></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptSecret"><span class="required">*</span>Secret:</label><input id="iptSecret" type="text" maxlength="1024"/></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptApp">Application:</label><input id="iptApp" type="text" maxlength="255"/></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptAccount">Account:</label><input id="iptAccount" type="text" maxlength="255"/></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptAlgorithm">Algorithm:</label><select id="iptAlgorithm"></select></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptPeriod">Period:</label><button id="iptPeriodDec" type="button">◀</button><input id="iptPeriod" type="range"/><button id="iptPeriodInc" type="button">▶</button><label id="iptPeriodTxt" for="iptPeriod" class="mlt"></label></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptDigits">Digits:</label><button id="iptDigitsDec" type="button">◀</button><input id="iptDigits" type="range"/><button id="iptDigitsInc" type="button">▶</button><label id="iptDigitsTxt" for="iptDigits" class="mlt"></label></div>
+          <div class="hbox mbt"><label class="formLbl mrt" for="iptIssuer">Issuer:</label><input id="iptIssuer" type="text" maxlength="255"/></div>
+          <div class="hbox"><button id="addBtn" type="button" class="bigBtn mrs">添加</button><button id="resetBtn" type="button" class="bigBtn">重置</button></div>
+        </div>
+      </form>
+    </details>
+    <table>
+      <tbody id="totpTblBody"></tbody>
+    </table>
+    <table style="display:none;">
+      <tbody>
+        <tr id="tmplRow1"><td colspan="2"><div class="hbox"><button type="button" class="actionBtn mrs" title="删除" data-key="delBtn">✖</button><span data-key="title"></span></div></td><td rowspan="2"><div class="vbox"><button type="button" class="actionBtn mbt" title="移到顶部" data-key="toTopBtn">⯭</button><button type="button" class="actionBtn mbt" title="上移" data-key="upBtn">⮝</button><button type="button" class="actionBtn mbt" title="下移" data-key="downBtn">⮟</button><button type="button" class="actionBtn" title="移到底部" data-key="toBottomBtn">⯯</button></div></td></tr>
+        <tr id="tmplRow2"><td><div class="vbox"><span class="mbt" data-key="timer">-</span><span class="passcode" data-key="curPasscode">-</span></div></td><td><div class="vbox"><span class="mbt">Next:</span><span class="passcode" data-key="nextPasscode">-</span></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>说明</h3>
+  <ul>
+    <li>Time-based One Time Password(TOTP)生成器。</li>
+    <li>以<a href="https://datatracker.ietf.org/doc/html/rfc6238" target="_blank">RFC-6238</a>为基准。</li>
+  </ul>
+  <div class="mts"><a id="saveMe" href="javascript:;"></a> (保存的html文件可使用支持HTML5的浏览器打开)</div>
+  <table id="verHis" class="mts remark"></table>
+</div>
+</body>
+</html>
