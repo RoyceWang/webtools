@@ -36,14 +36,25 @@ summary h3{display:inline;}
 .hbox{display:flex;align-items:center;}
 .vbox{display:flex;flex-direction:column;align-items:center;}
 .vbox.alignStart{align-items:start;}
+.fixPanel{position:fixed;top:10px;left:15px;}
 .iptForm input,.iptForm select{font-size:16px;}
 .errMsg{color:red;}
 .formLbl{width:100px;text-align:end;}
 .required{color:red;}
 .bigBtn{font-size:18px;}
-.actionBtn{width:28px;height:28px;font-family:'黑体';font-size:18px;font-weight:bold;padding:0;}
-.passcode{font-size:32px;font-weight:bold;}
+.actionBtn{width:28px;height:28px;min-width:28px;min-height:28px;max-width:28px;max-height:28px;font-family:'黑体';font-size:18px;font-weight:bold;padding:0;}
+.actionBtn:active::before,.actionBtn:disabled::before{content:'';position:relative;display:inline-block;top:0;left:0;width:100%;height:100%;z-index:1;}
+.actionBtn:active::before{background-color:rgba(0,0,0,0.2);}
+.actionBtn:disabled::before{background-color:rgba(255,255,255,0.6);}
+.passcode{font-family:monospace;font-size:32px;font-weight:bold;}
 .toBeExpire{color:#FF7F00;}
+.deleteIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAL8SURBVHja1FZNSxtBGH4nRI3EkxcDRjCHxUWUhETzsRjRiInoJR6CXjz7A7z20EP/gVSrtJdAL4WQ7BIaSiUHLWgrLT0UT2LxYgQR1oTdnd3VnR7a2e4mE+zFQwcGdnifj52Z99kEEULgKYcHnng8uYHXuSiVStBqtWB7e1vy+/19h4eHOQAAwzBsjGVZgBACQgj4fD6QZRnS6XSxp6cntLm5mR4cHITR0VGYnp7+TSCE2PPo6AhisVgZAAgAkGQyWaU1wzDAMAxQVRU0TbM5Kysr+xTPcdxJrVaDq6sru+4ymJ2drVEwnYuLi5JpmkAIAUVRAGMMhBC4vr6GfD7/uh0fi8W+SZIUYRrE4/F6OwEAiCAIoqqqLqwgCHssbCAQ+FEul2NMA0II5HI5kUVcWFgQKWZjY2OfheE47vTs7Myl12Hwx6TEElhfX98rFAovWLWxsbHjh4cHIIQAPdIOA13X7edMJiOxhFhzfHz888XFBRBCAGPsaoIOA8Mw7HUikRAfE5+YmDiheE3TAGNsNwLTQNd1FyCfz+91E08kEu/orp3iTr4raM4Q0aFpmtwtpf39/a3e3l57jRDqBDl3oGma6/zW1tZ2HzsiQRAqFK8oir0T5hHRXr+7u4NMJrP7r5eczWYljDE0m01QFMXVLMw2LRQKL1lC0Wi0srS09IZVm5qakljd6BKWZRmWl5dfsQTC4fAJJUYiEWZ3zc/PVy3L6h60eDz+lkUMBoOfnOEhhEAqlRK73MnHg4ODSaZBNBr93k7gef70/PzcDpHzAmdmZt4zXqZRLBZTTIN6vY44jjum4JGRka90yxhjUFXVzgrlJJPJquND97NSqfgvLy/tOnL2vCiK0Gg0YGdn54uqqn3VajXM8zxgjO18eDweQAiBaZpwf38PXq8X5ubmPtzc3IS2trYmh4eH9aGhIRAEofMXrdlsgmVZsLq6+mxgYKCP53mgH7D2ECGE4Pb2FkKhEGSz2eemaQZ9Pp8uyzIEAoG/uP/+X8WvAQCsbURkc8BuJgAAAABJRU5ErkJggg==);background-size:contain;}
+.upIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAKCSURBVHja1Fa/T9tAGH13Pv+IIjlS1aUwMGVNEVvFQCdgqKJKbKhZO7H0f2grdecfYG4Gqq6Ipe1SqFiQmJoKGRMrJsZJwQrO+b4utZvgmKSVGPpJT/Kd73vP33e+ZzMiwn0Gxz3HvQuI2xPD4XBsTETgnEMIgc3NzbdRFJV2d3dfXV1dQUoJxhgYY9l627aRIxjFxcXFGHzfBxFhZ2fnBQACQNvb2y+JCO12G+12G2dnZ3BdF67r5vhyE51OZwxEhL29vacpOeecAFCz2XxGROj1enBdF57nwfO86QJhGCIMQwRBACLC8fFxLSU3TZNM06R0fHR09ISIcHp6mlUzVeDy8hLdbhdEhCAIHti2PUjJDcMgwzAykXK5rDzPe0REcBwH5+fns1WQXler1R8AMuJRpCILCwuOUoorpbL9ulMgxfLy8qci8lEAoKWlpW9FPBMnNzY2mrOQj4rU6/WPMwnU6/XX6SYCICHEWP9HW6RpGo2ubTQa727z5Q7a+vr6VyJ6b9s2hWGI/f3958Ph0OB8/NAnSYJSqZSsrq5+0HVd3tzcYG1t7XPuKBf1LsX8/Lw3qV0AaG5uLpqWn/OiIAjQarXQ7/fR6XTAGNOKfEZKyaIosgHAcRxEUTTd7Djn0DQNSikopTDNzqWUAIBKpYLbbZwoMBgMoOv6X7umYRhjplcokCTJP9kyEUEpNd2uJz3FLFGUJ4oqUEohSRL4vv8QAOI4ziX7vm9JKRkRFVaeE6hUKgAAXddhWRZWVla+HB4ePv79amYRxzGr1Wonuq7/vL6+zj5U5XL5bgHLsv7cFAJbW1tvDg4OqpMEFhcXv5umqeI4hhBicuv++7+KXwMAtmZ9FaQ089AAAAAASUVORK5CYII=);background-size:contain;}
+.downIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAKDSURBVHja1JW7a9tQGMXPvbq+smqcgIfEEBIMXU2HkKWDCTXZuqTEa8dCyNL+Dx27eMof0CmDIGCasfWWqYQMLdka4jwcQhxHirFx9TidJGwrfmTI0AsHxOW756fvIV1BEs+5JJ55qdGNh4cHAIAQAqlUCvV6/c3JyclLpYZDPc9DsVj8s7Gx8cP3/Xhfaz0UJ0ZL1G63AQCpVApCCFGpVL4fHR290lpTCBHH9ft9sbq6+tu27TdSytDzPADA3NzcZECn0wEAZDIZuK5r5XK5bhiGY0twenpqzs/P/40yX1lZmdwDpRSUUnGJFhcXO1HqgwKAhYUFVylFKWV8bmqTwzBElNVTJ+yx+ATAMAwM1vpJIynldABJ9Pv9J5v7vg/TNGcDuK4bZzNpCSEghICUEkEQ4LFhSHTFsiwsLy8DANLpdE8pFU5ghEtLSx4AZLPZ2T60Wq1W3tvbe6+1RhAEhuM4Lx6bDqUUXNfNbG1tfc3lcoHrumJ9fd3e2dn5lijJoLa3tz8DYCTDMGiaJrXWQzJNk0opDsaWSqXqqF8CQBKbm5s1AAnTcQLAcrlcJylnApDE2traz1kgAFgsFn+N80ls3N7eRs+yUCg0AIwtEQDm8/lWt9tNk4TjONMBV1dXOD8/B0lcX1/nLcviKCQy11qz0WgUSKLVaqHdbk8HNJtNNJtNnJ2dgSSOj49fR000TTM2B8DDw8MSSdzd3eH+/n62DCLA5eVlfGB/f/8tAAohKKUkANq2/Y4kbm5uhjQVcHFxESuCkcTu7u6H6M2r1erHqF+jGvVL3AeO4yS+EaUUstksKpXKl16vlzo4OPgUBAF830/8GKfeaP/dpf/sgH8DAA6EQ36u5H2mAAAAAElFTkSuQmCC);background-size:contain;}
+.topIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAMSSURBVHja7FXPSyNJFP4qpquSEAlx9CAB8egoyOJ1D/4JCx68eFpGnFXYmdm9eRjmJmSJAVEk68YBhREG9iz4H3hSD7K4BNtfRFCD6Q6mO11d3W9P3SRjx4FhvO2DgqLq1fv69fu+9xgR4Tkthme2ZweIB5v19fWfisXiX7Va7UUqlWp+S7BWq5XMZDJqenr613w+XwYAEBGICJOTk38AoO+x+vv7/wzihhmsrKxsLi0tIZVKZXK5XEspFVwxxpg/NjZ2VCgUPjiOoy0uLr6vVCrjruvGAfgAEIvFoOu68DyvubCw8ClMK0BqNBrY29vD3d1deNa+Tk5OXnLOCQAdHBz8EOVzfHyM3d1d3N/fh2dhkRuNBqrVKizLAgAopeA4DgBgZ2dnemRk5B8pJQBgYmLisFQq/QwAtm2HfqZp4ubmBg8PD49Z5Hkegt+ilIKUEkIIbG9vv5qZmfkMAEIICCEAAPPz8x83NjbeJpNJ1Ot1SCnBOYdSCh3aClKp1WqoVCqo1+swTRNEhHK5/DoonBCCOOfEOSchRFjQtbW1t0QEy7JwcXGBo6MjXF1dhXHDjWEYsG0bUkoQEUql0i9RwaNAVldX3xERbm9vUa1WcXZ29hig2WzCsiwQEZaXl39/KngUSKFQWCQinJ6eQtf1xwCXl5cgIhSLxdl2Tmua1hUgYFWw8vn8b0TUwaJQB7FYDFJKDA8PX05NTf09NDR04vu+2NraemOapuCcd6hWSol0Ok2zs7OrmqYZ5+fnL0dHR/8FgHQ6jUgdGIYBx3E6uJ3L5e4BRH55NptVrutmojTxKIOAos1mE9fX1+jt7YXv+/A8r2vv8X0frusiHo9D13UMDg4imUx276aMMRARNE0DYwy+7z/Z3BhjLBDfwMAAGGPdu2mgRiIKHaMeRIAAADjnICK0Wi0AQCKR6ARoa25hJl/LoF2xwf7LCRnv9jBwdF03ZM2X5rouKaUoqMWTAyebzXZc9PT0IJFIYG5ubnN/f//Hvr6+Wvu9YRjZ8fHxw0wm07BtG91mO/t/6H/N/hsAV5ZW/9O8xgQAAAAASUVORK5CYII=);background-size:contain;}
+.bottomIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAMMSURBVHja7JW/SxthGMe/7/0Oh8GAS8AMUogdpA5Su3YXpE5dpKOgDpUO1Q4WwYAgBCsorRhcOkj+AtPFzUk01kFoEzQKMWIwp1eS+2meTne9mKSWFre+8MDdPe/7fJ4f3+NlRISHXBweeD04QPAedF1vJHMcVFXF3Nzc/N7e3rNIJFIJ+q+vryP9/f3ZRCIxY5ombm9vG86rqgoAYN4M7gIURYHjOGIsFtM0TVNbZaeqqnl0dBRWVdUxDKPB193d3ViBJEm+kzEGSZLAGGOiKLK7fgCwbRuCIIAxBp7nwXEcWglGaNc7IkK9XgdjrG1/GWNgjPmBvfeWAEVRAACWZcFxHMiy/MeD9CChUKipEq5V5uVyGfV6HYIg4L7/xAtu23bLaptapCgKenp6GtTUVuMch2g0Co7jEIlEYNs2DMMAz/PNANd1IQgCtre3n6dSqVexWOw7ANU0TbEdwLZtcXp6+r0kSdWzs7P4yMhIemho6Eu5XEZHR8evlhARrq6uQERYXl4eB0CeiaJIkiS1teDeRCIxRUQ4PT314/oPJycnyOfzICIkk8kZ75Asy22Dy7JMjDECQLOzs/NEBMMwUK1WmwHHx8coFou4vLz0KnnzO4gsy37mCwsLM96ga7UadF1vBhSLRRweHqJQKMAwDBARVlZWXreCBIMvLi6+IyLoug5N05DP5/0kGwDn5+fY2NjAzs4OLMvCxcUFiAhra2tTQUgw+NLS0luvLZZloVQqYX19Hblczo8rBPXM8zwsy4IkSejs7EStVsPY2NgH13V/TE5OpizL8hW0uro6PjEx8cm2bfA8D1EUfekGZeqTbm5usLW1hYODA/9b0LLZ7BOO4wgA7e7uPm21R9M0ZDIZVCqV5gpyudzjzc3Nl67rRnp7e00PDoATRdGNx+Nf+/r6Co7jyIVC4VEmk3nhuq7IGKsDgCAIKJVKcqVSqXZ1dX0eGBj41lBBNBr9GNT0v9jg4GCyqYLR0dH9dDptapomKIpi/M3tZZpmKBwOW8PDw/v+bP9f+vetnwMAtVodBRIDTkMAAAAASUVORK5CYII=);background-size:contain;}
+.eyeOpenIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAANoSURBVHja7FVNSGNXFP6c9576TFR8vknSgQoPmkwQ8W9MN4LYBAlBmU1pwYq2biy6ELoKCKarFhsKIzhWK2QxYheFUIdUC+qqg4KWhrRqiCEa6vCskpDEjrZoE9/p6oqTRqezGEqhFw5czvnu9517OOfeIiLCq1y38IrXf1+AZ5tIJAJRFLG3t4fKykpUVVVhfHwcHMfdCYVCbx4eHtalUqk7RFQky/KvJpNpu7m5+QdBEA4kSUJdXR3Ozs7gcrmg1+v/LgAAFxcXkCQJJSUl2NzcfG11dfX9dDp9X1XVe5qmFTNcJpPB7u5ubn9/P2gwGL612+2PZFlWT05OoGna81cgIhARtre3QUQIh8Oldrv9IQD6p8ZxHDkcjumFhQU942N2uTk/P8fY2JhdkqTUTWSdnZ2P5+bm3pucnPxQUZRfrsZEUfzN6/U6Cwr4fL53GbC8vPwPRVGe5pMPDQ19mZfhLZPJlNTpdCdGozHNcFNTU73PCSwtLb3Fgl1dXYF4PG6pqal5mleGXCaTqbx641wuB4/HM1pWVna6sbFhrK+v/4bh5+fnXUQExOPxKgAaALLZbD8SEZaXl5352fM8n81msxwRIZlMIhgMQlVVTE9PdwOgnp6ejkgkAofDscbORKNRA6xW6wYAamxs3GLZDQ8PPyhU/5mZmUEiwvHx8WWZOjo6vgdAbW1tn5+enoKIYLPZggBIUZSfeJ7nRQDgOO6CdZYkSc8KDc3AwMAXRASn0/lYVdUKr9f78crKShsANDU1pXU6Ha5y8TxfhkQiYWIZtra2PiEixGKxu8zX3t7+JBQKNXs8nk9u6q61tbU3iAgNDQ0rzHdwcPA6iAiLi4tdzOl0Or8jInR3d38NgCYmJj4iIhwdHd2+jry/v3+WiNDS0hJgPr/f/w4RAZqmgYgwOzv7AQtaLJboyMjIWEVFxTO9Xv/74ODgQ6vVulWIvLq6OjU6OjpiNpvDzOfz+QYu25QJEBECgcB9URTPGFAQhD9fNMWlpaWX+OLi4qzf73+74KAxS6VS1X19fY9e5qkAQL29vV8lEgnjtU9FvsViMbPb7f60trZ26zpSi8USdrvdn0Wj0bvX8RS96MvUNA3r6+sN4XDYvLOzY5BlGUajMSnLcszlcv0sCMKNBEX//8n/usBfAwBPnXFJzY4p6gAAAABJRU5ErkJggg==);background-size:contain;}
+.eyeCloseIcon{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAATDSURBVHjatFZfTFNXHP6qIKk2qYRUh1Am2CXjwfjkA5otWYxkWyIJwy0jQjVxmYh2lNiESRwtpYn8iUwKrUEogooQYDIT0xeJiRmYvpjMoA5USitpm97+u95LSw30/vaw3e6imy/Om5yH853v933n5Jz7nSMjIrzPL4NlWXAcB4VCgczMTCSTSWRnZyMej4OIsGXLFiwuLiIrKwsFBQXgeR4Mw2Djxo2Qy+XgeR4A0uOXLl06NT8/v9NgMJxXKpXRjHedYSqVgkKhQH5+Psxmc4vRaDwHAKFQSD08PPzthncV37x5M/Lz89Hc3GwRxQEgNzfXQ0RALBaD1+tFJBIBx3FgGAarq6tgWRaxWAypVAperxcvX74EEYGIEA6H4fV6EQqFQEQwmUwtAEhsR48eHRYEAaurq28aBINBrK2tpcWICD6fD48ePdrq8Xg+fPLkyU6Xy5X78OHDrUSEpqamdeJarfa6tHadAcuyePXqFYgILMvKBwcHK6uqqhzFxcWzCoWCl8lkaSGPx7Orv7//O6l4TU1Nn1Q8bbC4uIhIJAIiAs/zmS0tLca8vLyAtFjabt26dXhgYOC4FNPr9T2iaCqVQiAQQDQaBSKRCHw+H4gId+/ePaDRaBakhdJZA6CZmZlPnU7nl1LMZDI1379/f/++fft+u3379hdEhEAgAJ/PB/A8DyKCzWarlRaVlJS4KioqJmUymVBWVnZTp9N1TU1NHZicnPxKyrtw4YLB5/N9IMUuXrxYR0SIxWIAEaG3t7dGSjh79ux5IsLJkyftAEhc+uXLl7+X8gwGw89EhFAopNTr9V3Ssc7OzjoiAiYmJg6J4LZt28Kjo6OHRUG1Wr0gGlit1nUrtFqtP4yNjX1dUlIyI/LHx8cPbd++PShyRkZGKpCTkxMWgdbW1nNEhJWVFQiCgNraWqvdbq/r7u7WvSZeNzc3pwFApaWlTiJCIpEAEaGrq6te5Mnl8jiGhoYqRUCtVi85nc7PiSj9L/T09Ohfn/nTp0+LxP6DBw92iSu4c+fOZ4WFhV5xrK+vTwsiQmtr649SkcbGxvN/44bXT8v09PR+sT86OvqNKN7W1tYg5ZrNZiMRIX1EOzo60iaDg4PH7Hb7uo232WyniQgHDx78VafT2R4/fvwxEeHKlSvH9uzZ87uUa7FYmogI0WgUsmfPnkGj0QAAHA7HcZVKxSQSCUVlZeUNMbja2toajxw5ct1sNp9OJpPYu3evf25urnBkZKQqGo3miDyVShXp7e09UV5e/kswGEQymQTcbjf8fn86/69du1YtnU1DQ0P79PT0J//1VwMgpVK5XF9f3xkOh7OJCMlkEm63G0tLS8Dz58/x4sUL/FtwnTlzppOIUFxc/IcUz8jIWCsqKnKXl5ff7OjoOOX3+1XS/OF5Hh6P5y+DQCAAIoLRaFwnXl1dPSwWzM/PK65evbpjdnZ2t8vl2m2xWHYwDLMu1FZWVtKRvry8/I8BEaG7u/vE2yKXYRjcu3cv3Xc4HIjFYhAzh+M4JBIJcBz3hsEGAFhYWPhI3CitVntjaGioSnpzJRIJsCwLQRDAcRx4nkc8HgcAyGSyt1/6giDAYrH8RES0adOmeHt7u+n/fFXI3vez5c8BACitm77ou8lbAAAAAElFTkSuQmCC);background-size:contain;};
 </style>
 <script type="text/javascript">
 /*
@@ -282,7 +293,8 @@ const Kit={};
     author:'Royce Wang',
     download:'totp_generator.html',
     versionHistory:[
-      ['1.0','2024-09-20',{html:'初始创建。'}]
+      ['1.0','2024-09-20',{html:'初始创建。'}],
+      ['1.1','2024-10-06',{html:'增加显示隐藏功能，调整按钮图标样式，重构代码。'}]
     ]
   };
 })();
@@ -290,15 +302,39 @@ const Kit={};
 // ========= custom codes
 const init=()=>{
   // Initialize the APP at here.
+  initToolBtns();
   initIptForm();
-  addInitData();
-  updateActionBtns();
-  updateCountDown();
+  initHotKeys();
+  addInitPasses();
+  updateActBtns();
+  countDown();
 };
 
-const _INIT_DATA=[
+const INIT_PASSES=[
   'otpauth://totp/test-app:test-account?secret=AAAABBBBCCCCDDDDEEEEFFFFGGGG2222&algorithm=SHA256&period=20&digits=6&issuer=test-issuer'
 ];
+const ID_SHOW_HIDE_ALL_BTN='showHideAllBtn';
+const ID_ADD_FORM='addForm';
+const ID_ADD_BTN='addBtn';
+const ID_RESET_BTN='resetBtn';
+const ID_MSG_BAR='msgBar';
+const ID_MSG_TXT='msgTxt';
+const ID_IPT_SECRET='iptSecret';
+const ID_IPT_APP='iptApp';
+const ID_IPT_ACCOUNT='iptAccount';
+const ID_IPT_ALGORITHM='iptAlgorithm';
+const ID_IPT_PERIOD='iptPeriod';
+const ID_IPT_PERIOD_DEC='iptPeriodDec';
+const ID_IPT_PERIOD_INC='iptPeriodInc';
+const ID_IPT_PERIOD_TXT='iptPeriodTxt';
+const ID_IPT_DIGITS='iptDigits';
+const ID_IPT_DIGITS_DEC='iptDigitsDec';
+const ID_IPT_DIGITS_INC='iptDigitsInc';
+const ID_IPT_DIGITS_TXT='iptDigitsTxt';
+const ID_IPT_ISSUER='iptIssuer';
+const ID_TOTP_TBL_BODY='totpTblBody';
+const ID_TMPL_ROW1='tmplRow1';
+const ID_TMPL_ROW2='tmplRow2';
 const KEY_SECRET='secret';
 const KEY_APP='app';
 const KEY_ACCOUNT='account';
@@ -307,18 +343,41 @@ const KEY_PERIOD='period';
 const KEY_DIGITS='digits';
 const KEY_ISSUER='issuer';
 const KEYS=[KEY_SECRET,KEY_APP,KEY_ACCOUNT,KEY_ALGORITHM,KEY_PERIOD,KEY_DIGITS,KEY_ISSUER];
-const ALGORITHMS=['SHA1','SHA224','SHA256','SHA384','SHA512','SHA3'];
+const DEF_ALGORITHM='SHA1';
+const DEF_PERIOD=30;
+const DEF_DIGITS=6;
+const ALGORITHMS=[DEF_ALGORITHM,'SHA224','SHA256','SHA384','SHA512','SHA3'];
 const ALGORITHM_PRE='Hmac';
 const PERIOD_MIN=10;
 const PERIOD_MAX=600;
 const DIGITS_MIN=3;
 const DIGITS_MAX=9;
-const DEF_ALGORITHM='SHA1';
-const DEF_PERIOD=30;
-const DEF_DIGITS=6;
+const URL_PRE='otpauth://totp/';
+const KEY_CKEY='ckey';
+const KEY_LAST_GEN='lastGen';
+const KEY_PASS='pass';
+const CKEY_TOTP_ROW='totpRow';
+const CKEY_DEL_BTN='delBtn';
+const CKEY_SHOW_HIDE_BTN='showHideBtn';
+const CKEY_TOTP_TITLE='totpTitle';
+const CKEY_TOP_BTN='topBtn';
+const CKEY_UP_BTN='upBtn';
+const CKEY_DOWN_BTN='downBtn';
+const CKEY_BOTTOM_BTN='bottomBtn';
+const CKEY_TIMER='timer';
+const CKEY_CUR_PASS='curPass';
+const CKEY_NEXT_PASS='nextPass';
 const BASE_TS=0;
+const PERIOD_SUF='s';
+const HIDE_MASK_CHAR='*';
+const TEXT_SHOW_ALL='全部显示';
+const TEXT_HIDE_ALL='全部隐藏';
+const CLS_EYE_OPEN_ICON='eyeOpenIcon';
+const CLS_EYE_CLOSE_ICON='eyeCloseIcon';
+const TITLE_SHOW='显示';
+const TITLE_HIDE='隐藏';
+const CLS_TO_BE_EXPIRE='toBeExpire';
 const Totp=(kit=>{
-  const URL_PRE='otpauth://totp/';
   const DEF_VALS={};
   DEF_VALS[KEY_ALGORITHM]=DEF_ALGORITHM;
   DEF_VALS[KEY_PERIOD]=String(DEF_PERIOD);
@@ -428,61 +487,269 @@ const Totp=(kit=>{
   });
   return obj;
 })(Kit);
-
-const initIptForm=()=>{
-  ALGORITHMS.forEach(alg=>{
-    const opt=document.createElement('option');
-    opt.value=alg;
-    opt.innerHTML=alg;
-    if(alg===DEF_ALGORITHM){
-      opt.selected=true;
+const HotKey=(kit=>{
+  const CDAT_HOT_KEY='hotKey';
+  const obj={};
+  const dp=(k,v)=>kit.dp(obj,k,v);
+  let map=null;
+  dp('reg',(key,dom,handler,focusFlag)=>{
+    if(!map){
+      map={};
+      document.addEventListener('keypress',e=>{
+        const handler=map[e.keyCode];
+        if(handler){
+          if(focusFlag){
+            dom.focus();
+          }
+          handler();
+        }
+      });
     }
-    DOM['iptAlgorithm'].append(opt);
+    map[key.charCodeAt(0)]=handler;
+    dom.dataset[CDAT_HOT_KEY]=key.charAt(0);
+    obj.setText(dom,dom.innerHTML);
   });
-  DOM['iptPeriod'].setAttribute('min',PERIOD_MIN);
-  DOM['iptPeriod'].setAttribute('max',PERIOD_MAX);
-  DOM['iptPeriod'].setAttribute('value',DEF_PERIOD);
-  DOM['iptPeriod'].addEventListener('input',updateIptPeriodTxt);
-  DOM['iptPeriodDec'].addEventListener('click',decIptPeriod);
-  DOM['iptPeriodInc'].addEventListener('click',incIptPeriod);
-  DOM['iptDigits'].min=DIGITS_MIN;
-  DOM['iptDigits'].max=DIGITS_MAX;
-  DOM['iptDigits'].value=DEF_DIGITS;
-  DOM['iptDigits'].addEventListener('input',updateIptDigitsTxt);
-  DOM['iptDigitsDec'].addEventListener('click',decIptDigits);
-  DOM['iptDigitsInc'].addEventListener('click',incIptDigits);
-  DOM['addBtn'].addEventListener('click',addElmt);
-  DOM['resetBtn'].addEventListener('click',resetIptForm);
-  updateFormTxt();
+  dp('ignoreOn',doms=>doms.forEach(dom=>dom.addEventListener('keypress',e=>e.stopPropagation())));
+  dp('setText',(dom,text)=>{
+    let hotKeySuf=dom.dataset[CDAT_HOT_KEY];
+    hotKeySuf=hotKeySuf?`[${hotKeySuf}]`:'';
+    kit.setText(dom,text+hotKeySuf);
+  });
+  return obj;
+})(Kit);
+const ToggleBtn=((kit,fSetText)=>{
+  const CDAT_TOGGLE='toggle';
+  const CDAT_ON_TEXT='onText';
+  const CDAT_OFF_TEXT='offText';
+  const CDAT_ON_CLS='onClass';
+  const CDAT_OFF_CLS='offClass';
+  const CDAT_ON_TITLE='onTitle';
+  const CDAT_OFF_TITLE='offTitle';
+  const CVAL_ON='on';
+  const CVAL_OFF='off';
+  const obj={};
+  const map={};
+  const dp=(k,v)=>kit.dp(obj,k,v);
+  const setText=fSetText||kit.setText;
+  const updateBtn=btn=>{
+    const state=btn.dataset[CDAT_TOGGLE]===CVAL_ON;
+    const onText=btn.dataset[CDAT_ON_TEXT];
+    const offText=btn.dataset[CDAT_OFF_TEXT];
+    const onCls=btn.dataset[CDAT_ON_CLS];
+    const offCls=btn.dataset[CDAT_OFF_CLS];
+    const onTitle=btn.dataset[CDAT_ON_TITLE];
+    const offTitle=btn.dataset[CDAT_OFF_TITLE];
+    if(onText||offText){
+      setText(btn,state?onText:offText);
+    }
+    if(onCls||offCls){
+      btn.classList.remove(onCls,offCls);
+      const tgtCls=state?onCls:offCls;
+      if(tgtCls){
+        btn.classList.add(tgtCls);
+      }
+    }
+    if(onTitle||offTitle){
+      btn.removeAttribute('title');
+      const tgtTitle=state?onTitle:offTitle;
+      if(tgtTitle){
+        btn.setAttribute('title',tgtTitle);
+      }
+    }
+  };
+  dp('init',(btn,onText,offText,onCls,offCls,onTitle,offTitle,initOn)=>{
+    btn.dataset[CDAT_ON_TEXT]=onText||'';
+    btn.dataset[CDAT_OFF_TEXT]=offText||'';
+    btn.dataset[CDAT_ON_CLS]=onCls||'';
+    btn.dataset[CDAT_OFF_CLS]=offCls||'';
+    btn.dataset[CDAT_ON_TITLE]=onTitle||'';
+    btn.dataset[CDAT_OFF_TITLE]=offTitle||'';
+    btn.dataset[CDAT_TOGGLE]=initOn?CVAL_ON:CVAL_OFF;
+    updateBtn(btn);
+  });
+  dp('set',(btn,isOn)=>{
+    btn.dataset[CDAT_TOGGLE]=isOn?CVAL_ON:CVAL_OFF;
+    updateBtn(btn);
+  });
+  dp('get',btn=>btn.dataset[CDAT_TOGGLE]===CVAL_ON);
+  dp('switch',btn=>obj.set(btn,btn.dataset[CDAT_TOGGLE]!==CVAL_ON));
+  return obj;
+})(Kit,HotKey.setText);
+
+const ckeySelector=ckey=>`[data-ckey="${ckey}"]`;
+const findRowsByActBtn=btn=>{
+  const row1=btn.parentElement.parentElement.parentElement;
+  const row2=row1.nextElementSibling;
+  return {row1,row2};
 };
-const decIptPeriod=e=>decIptVal('iptPeriod',PERIOD_MIN,'iptPeriodTxt','s');
-const incIptPeriod=e=>incIptVal('iptPeriod',PERIOD_MAX,'iptPeriodTxt','s');
-const updateIptPeriodTxt=e=>updateIptTxt('iptPeriod','iptPeriodTxt','s');
-const decIptDigits=e=>decIptVal('iptDigits',DIGITS_MIN,'iptDigitsTxt');
-const incIptDigits=e=>incIptVal('iptDigits',DIGITS_MAX,'iptDigitsTxt');
-const updateIptDigitsTxt=e=>updateIptTxt('iptDigits','iptDigitsTxt');
-const decIptVal=(ipt,min,txt,suf)=>{
-  const val=parseInt(DOM[ipt].value);
-  if(val>min){
-    DOM[ipt].value=val-1;
-    updateIptTxt(ipt,txt,suf);
+const renderPass=rows=>{
+  const curPassDom=rows.row2.querySelector(ckeySelector(CKEY_CUR_PASS));
+  const nextPassDom=rows.row2.querySelector(ckeySelector(CKEY_NEXT_PASS));
+  if(ToggleBtn.get(rows.row1.querySelector(ckeySelector(CKEY_SHOW_HIDE_BTN)))){
+    const digits=parseInt(rows.row1.dataset[KEY_DIGITS]);
+    let mask='';
+    for(let i=0;i<digits;i++){
+      mask+=HIDE_MASK_CHAR;
+    }
+    Kit.setText(curPassDom,mask);
+    Kit.setText(nextPassDom,mask);
+  }else{
+    Kit.setText(curPassDom,curPassDom.dataset[KEY_PASS]);
+    Kit.setText(nextPassDom,nextPassDom.dataset[KEY_PASS]);
   }
 };
-const incIptVal=(ipt,max,txt,suf)=>{
-  const val=parseInt(DOM[ipt].value);
-  if(val<max){
-    DOM[ipt].value=val+1;
-    updateIptTxt(ipt,txt,suf);
+const doSwitchShowHide=btn=>{
+  ToggleBtn.switch(btn);
+  renderPass(findRowsByActBtn(btn));
+};
+const switchShowHideAll=()=>{
+  ToggleBtn.switch(DOM[ID_SHOW_HIDE_ALL_BTN]);
+  const tgtState=ToggleBtn.get(DOM[ID_SHOW_HIDE_ALL_BTN]);
+  const btns=DOM[ID_TOTP_TBL_BODY].querySelectorAll(ckeySelector(CKEY_SHOW_HIDE_BTN));
+  btns.forEach(btn=>{
+    if(ToggleBtn.get(btn)!==tgtState){
+      doSwitchShowHide(btn);
+    }
+  });
+};
+const initToolBtns=()=>{
+  ToggleBtn.init(DOM[ID_SHOW_HIDE_ALL_BTN],TEXT_SHOW_ALL,TEXT_HIDE_ALL);
+  DOM[ID_SHOW_HIDE_ALL_BTN].addEventListener('click',switchShowHideAll);
+};
+
+const clearErrMsg=()=>{
+  Kit.setText(DOM[ID_MSG_TXT],'');
+  DOM[ID_MSG_BAR].style.display='none';
+};
+const showErrMsg=msg=>{
+  Kit.setText(DOM[ID_MSG_TXT],msg);
+  DOM[ID_MSG_BAR].style.display='flex';
+};
+const updateActBtns=()=>{
+  DOM[ID_TOTP_TBL_BODY].querySelectorAll(ckeySelector(CKEY_TOTP_ROW)).forEach(row=>row.querySelectorAll('button.actionBtn').forEach(btn=>btn.disabled=false));
+  if(DOM[ID_TOTP_TBL_BODY].firstChild&&DOM[ID_TOTP_TBL_BODY].lastChild){
+    DOM[ID_TOTP_TBL_BODY].firstChild.querySelector(ckeySelector(CKEY_TOP_BTN)).disabled=true;
+    DOM[ID_TOTP_TBL_BODY].firstChild.querySelector(ckeySelector(CKEY_UP_BTN)).disabled=true;
+    DOM[ID_TOTP_TBL_BODY].lastChild.previousElementSibling.querySelector(ckeySelector(CKEY_DOWN_BTN)).disabled=true;
+    DOM[ID_TOTP_TBL_BODY].lastChild.previousElementSibling.querySelector(ckeySelector(CKEY_BOTTOM_BTN)).disabled=true;
+  }
+}
+const delTotp=e=>{
+  if(window.confirm('确定要删除此Password吗？')){
+    const rows=findRowsByActBtn(e.target);
+    rows.row2.remove();
+    rows.row1.remove();
+    updateActBtns();
   }
 };
-const updateIptTxt=(ipt,txt,suf)=>DOM[txt].innerHTML=`${DOM[ipt].value}${suf||''}`;
-const updateFormTxt=()=>{
-  updateIptPeriodTxt();
-  updateIptDigitsTxt();
+const updateShowHideAllBtn=()=>{
+  const btns=DOM[ID_TOTP_TBL_BODY].querySelectorAll(ckeySelector(CKEY_SHOW_HIDE_BTN));
+  let allHidden=true;
+  for(let i=0;i<btns.length;i++){
+    if(!ToggleBtn.get(btns[i])){
+      allHidden=false;
+      break;
+    }
+  }
+  ToggleBtn.set(DOM[ID_SHOW_HIDE_ALL_BTN],allHidden);
 };
-const addElmt=e=>{
-  const secret=DOM['iptSecret'].value;
+const showHidePass=e=>{
+  doSwitchShowHide(e.target);
+  updateShowHideAllBtn();
+};
+const totpTop=e=>{
+  const rows=findRowsByActBtn(e.target);
+  const firstRow1=DOM[ID_TOTP_TBL_BODY].firstChild;
+  if(firstRow1){
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row1,firstRow1);
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row2,firstRow1);
+    updateActBtns();
+  }
+};
+const totpUp=e=>{
+  const rows=findRowsByActBtn(e.target);
+  const prevRow1=rows.row1.previousElementSibling?.previousElementSibling;
+  if(prevRow1){
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row1,prevRow1);
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row2,prevRow1);
+    updateActBtns();
+  }
+};
+const totpDown=e=>{
+  const rows=findRowsByActBtn(e.target);
+  const nextNextRow1=rows.row2.nextElementSibling?.nextElementSibling?.nextElementSibling;
+  if(nextNextRow1){
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row1,nextNextRow1);
+    DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row2,nextNextRow1);
+    updateActBtns();
+  }
+};
+const totpBottom=e=>{
+  const rows=findRowsByActBtn(e.target);
+  DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row1,null);
+  DOM[ID_TOTP_TBL_BODY].insertBefore(rows.row2,null);
+  updateActBtns();
+};
+const addTotp=totpObj=>{
+  const row1=Kit.celmt('tr');
+  row1.innerHTML=DOM[ID_TMPL_ROW1].innerHTML;
+  row1.dataset[KEY_CKEY]=CKEY_TOTP_ROW;
+  const row2=Kit.celmt('tr');
+  row2.innerHTML=DOM[ID_TMPL_ROW2].innerHTML;
+  KEYS.forEach(k=>totpObj[k]&&(row1.dataset[k]=totpObj[k]));
+  row1.querySelector(ckeySelector(CKEY_DEL_BTN)).addEventListener('click',delTotp);
+  const showHideBtn=row1.querySelector(ckeySelector(CKEY_SHOW_HIDE_BTN));
+  ToggleBtn.init(showHideBtn,null,null,CLS_EYE_OPEN_ICON,CLS_EYE_CLOSE_ICON,TITLE_SHOW,TITLE_HIDE);
+  showHideBtn.addEventListener('click',showHidePass);
+  const titleDom=row1.querySelector(ckeySelector(CKEY_TOTP_TITLE));
+  const parts=[];
+  totpObj[KEY_APP]&&parts.push(totpObj[KEY_APP]);
+  totpObj[KEY_ACCOUNT]&&parts.push(`(${totpObj[KEY_ACCOUNT]})`);
+  Kit.setText(titleDom,parts.join(' '));
+  totpObj[KEY_ISSUER]&&titleDom.setAttribute('title',totpObj[KEY_ISSUER]);
+  row1.querySelector(ckeySelector(CKEY_TOP_BTN)).addEventListener('click',totpTop);
+  row1.querySelector(ckeySelector(CKEY_UP_BTN)).addEventListener('click',totpUp);
+  row1.querySelector(ckeySelector(CKEY_DOWN_BTN)).addEventListener('click',totpDown);
+  row1.querySelector(ckeySelector(CKEY_BOTTOM_BTN)).addEventListener('click',totpBottom);
+  DOM[ID_TOTP_TBL_BODY].append(row1,row2);
+};
+const genPass=row1=>{
+  const ts=Date.now();
+  const row2=row1.nextElementSibling;
+  const curPassDom=row2.querySelector(ckeySelector(CKEY_CUR_PASS));
+  const nextPassDom=row2.querySelector(ckeySelector(CKEY_NEXT_PASS));
+  const algorithm=row1.dataset[KEY_ALGORITHM];
+  const secret=row1.dataset[KEY_SECRET];
+  const period=parseInt(row1.dataset[KEY_PERIOD]);
+  const digits=parseInt(row1.dataset[KEY_DIGITS]);
+  const firstGen=!row1.dataset[KEY_LAST_GEN];
+  const genTime=Math.floor(ts/1000);
+  const interval=period*1000;
+  row1.dataset[KEY_LAST_GEN]=genTime-(genTime%period);
+  const curPass=firstGen?Totp.gen(algorithm,secret,ts,BASE_TS,interval,digits):nextPassDom.dataset[KEY_PASS];
+  const nextPass=Totp.gen(algorithm,secret,ts+interval,BASE_TS,interval,digits);
+  curPassDom.dataset[KEY_PASS]=curPass;
+  nextPassDom.dataset[KEY_PASS]=nextPass;
+  renderPass({row1,row2});
+};
+const refreshTimer=row1=>{
+  const period=parseInt(row1.dataset[KEY_PERIOD]);
+  const left=period-Math.floor(Date.now()/1000)%period;
+  const row2=row1.nextElementSibling;
+  const timer=row2.querySelector(ckeySelector(CKEY_TIMER));
+  const curPassDom=row2.querySelector(ckeySelector(CKEY_CUR_PASS));
+  Kit.setText(timer,`${left}s`);
+  if(left<=5){
+    timer.classList.add(CLS_TO_BE_EXPIRE);
+    curPassDom.classList.add(CLS_TO_BE_EXPIRE);
+  }else{
+    timer.classList.remove(CLS_TO_BE_EXPIRE);
+    curPassDom.classList.remove(CLS_TO_BE_EXPIRE);
+  }
+};
+const addPass=()=>{
   clearErrMsg();
+  const secret=DOM[ID_IPT_SECRET].value;
   if(!secret){
     showErrMsg('Secret不可为空！');
     return;
@@ -492,183 +759,123 @@ const addElmt=e=>{
   }
   for(let i=0;i<secret.length;i++){
     const c=secret.charCodeAt(i);
-    const notLetter=c<65||c>90;
-    if(notLetter&&(c<50||c>55)){
+    if(!(c>=65&&c<=90||c>=50&&c<=55)){
       showErrMsg(`Secret包含无效字符'${Kit.fcc(c)}'(只允许大写字母及数字2-7)！`);
       return;
     }
   }
-  const app=DOM['iptApp'].value;
-  const account=DOM['iptAccount'].value;
-  const algorithm=DOM['iptAlgorithm'].value;
-  const period=DOM['iptPeriod'].value;
-  const digits=DOM['iptDigits'].value;
-  const issuer=DOM['iptIssuer'].value;
-  addTotpElmt({secret,app,account,algorithm,period,digits,issuer});
-  DOM['addElmtPanel'].open=false;
-  const row=DOM['totpTblBody'].lastChild.previousElementSibling;
-  genPasscode(row);
-  refreshCountDown(row);
-  updateActionBtns();
+  const app=DOM[ID_IPT_APP].value;
+  const account=DOM[ID_IPT_ACCOUNT].value;
+  const algorithm=DOM[ID_IPT_ALGORITHM].value;
+  const period=DOM[ID_IPT_PERIOD].value;
+  const digits=DOM[ID_IPT_DIGITS].value;
+  const issuer=DOM[ID_IPT_ISSUER].value;
+  addTotp({secret,app,account,algorithm,period,digits,issuer});
+  updateActBtns();
+  const row1=DOM[ID_TOTP_TBL_BODY].lastChild.previousElementSibling;
+  genPass(row1);
+  refreshTimer(row1);
 };
-const clearErrMsg=()=>{
-  DOM['errMsg'].innerHTML='';
-  DOM['errMsgBar'].style.display='none';
+const updateIptTxt=(iptId,txtId,suf)=>Kit.setText(DOM[txtId],`${DOM[iptId].value}${suf||''}`);
+const updateIptPeriodTxt=()=>updateIptTxt(ID_IPT_PERIOD,ID_IPT_PERIOD_TXT,PERIOD_SUF);
+const updateIptDigitsTxt=()=>updateIptTxt(ID_IPT_DIGITS,ID_IPT_DIGITS_TXT);
+const updateFormTxt=()=>{
+  updateIptPeriodTxt();
+  updateIptDigitsTxt();
 };
-const showErrMsg=msg=>{
-  DOM['errMsg'].innerHTML='';
-  DOM['errMsg'].append(document.createTextNode(msg));
-  DOM['errMsgBar'].style.display='flex';
-};
-const resetIptForm=e=>{
-  DOM['addElmtForm'].reset();
+const resetAddForm=()=>{
+  DOM[ID_ADD_FORM].reset();
   clearErrMsg();
   updateFormTxt();
 }
-
-const addInitData=()=>_INIT_DATA.forEach(url=>addTotpElmt(Totp.fromOTPURL(url)));
-const addTotpElmt=totpObj=>{
-  const row1=document.createElement('tr');
-  row1.innerHTML=DOM['tmplRow1'].innerHTML;
-  const row2=document.createElement('tr');
-  row2.innerHTML=DOM['tmplRow2'].innerHTML;
-  row1.dataset['key']='elmtRow';
-  KEYS.forEach(k=>totpObj[k]?(row1.dataset[k]=totpObj[k]):null);
-  row1.querySelector('[data-key="delBtn"]').addEventListener('click',delTotpElmt);
-  const titleTxt=row1.querySelector('[data-key="title"]');
-  const app=totpObj[KEY_APP];
-  const account=totpObj[KEY_ACCOUNT];
-  const title=app&&account?`${app} (${account})`:(app||(account?`(${account})`:null));
-  if(title){
-    titleTxt.innerHTML=title;
-  }
-  if(totpObj[KEY_ISSUER]){
-    titleTxt.title=totpObj[KEY_ISSUER];
-  }
-  row1.querySelector('[data-key="toTopBtn"]').addEventListener('click',elmtToTop);
-  row1.querySelector('[data-key="upBtn"]').addEventListener('click',elmtUp);
-  row1.querySelector('[data-key="downBtn"]').addEventListener('click',elmtDown);
-  row1.querySelector('[data-key="toBottomBtn"]').addEventListener('click',elmtToBottom);
-  DOM['totpTblBody'].append(row1,row2);
-};
-const delTotpElmt=e=>{
-  if(window.confirm('确定要删除此Passcode吗？')){
-    const rows=findEventRows(e);
-    rows.row2.remove();
-    rows.row1.remove();
-    rows=null;
-    updateActionBtns();
+const decIptVal=(iptId,min,txtId,suf)=>{
+  const val=parseInt(DOM[iptId].value);
+  if(val>min){
+    DOM[iptId].value=val-1;
+    updateIptTxt(iptId,txtId,suf);
   }
 };
-const elmtToTop=e=>{
-  const rows=findEventRows(e);
-  totpTblBody.insertBefore(rows.row2,totpTblBody.firstChild);
-  totpTblBody.insertBefore(rows.row1,totpTblBody.firstChild);
-  updateActionBtns();
+const incIptVal=(iptId,max,txtId,suf)=>{
+  const val=parseInt(DOM[iptId].value);
+  if(val<max){
+    DOM[iptId].value=val+1;
+    updateIptTxt(iptId,txtId,suf);
+  }
 };
-const elmtUp=e=>{
-  const rows=findEventRows(e);
-  totpTblBody.insertBefore(rows.row2,rows.row1.previousElementSibling.previousElementSibling);
-  totpTblBody.insertBefore(rows.row1,rows.row2);
-  updateActionBtns();
-};
-const elmtDown=e=>{
-  const rows=findEventRows(e);
-  totpTblBody.insertBefore(rows.row2,rows.row2.nextElementSibling?.nextElementSibling?.nextElementSibling);
-  totpTblBody.insertBefore(rows.row1,rows.row2);
-  updateActionBtns();
-};
-const elmtToBottom=e=>{
-  const rows=findEventRows(e);
-  totpTblBody.insertBefore(rows.row1,null);
-  totpTblBody.insertBefore(rows.row2,null);
-  updateActionBtns();
-};
-const findEventRows=e=>{
-  const row1=e.target.parentElement.parentElement.parentElement;
-  const row2=row1.nextElementSibling;
-  return {row1,row2};
-};
-
-const updateActionBtns=()=>{
-  DOM['totpTblBody'].querySelectorAll('[data-key="elmtRow"]').forEach(row=>row.querySelectorAll('button.actionBtn').forEach(btn=>btn.disabled=false));
-  DOM['totpTblBody'].firstChild.querySelector('[data-key="toTopBtn"]').disabled=true;
-  DOM['totpTblBody'].firstChild.querySelector('[data-key="upBtn"]').disabled=true;
-  DOM['totpTblBody'].lastChild.previousElementSibling.querySelector('[data-key="downBtn"]').disabled=true;
-  DOM['totpTblBody'].lastChild.previousElementSibling.querySelector('[data-key="toBottomBtn"]').disabled=true;
-}
-const updateCountDown=()=>{
-  DOM['totpTblBody'].querySelectorAll('[data-key="elmtRow"]').forEach(row=>{
-    const need=needGen(row);
-    if(need){
-      genPasscode(row);
+const decIptPeriod=()=>decIptVal(ID_IPT_PERIOD,PERIOD_MIN,ID_IPT_PERIOD_TXT,PERIOD_SUF);
+const incIptPeriod=()=>incIptVal(ID_IPT_PERIOD,PERIOD_MAX,ID_IPT_PERIOD_TXT,PERIOD_SUF);
+const decIptDigits=()=>decIptVal(ID_IPT_DIGITS,DIGITS_MIN,ID_IPT_DIGITS_TXT);
+const incIptDigits=()=>incIptVal(ID_IPT_DIGITS,DIGITS_MAX,ID_IPT_DIGITS_TXT);
+const initIptForm=()=>{
+  DOM[ID_ADD_BTN].addEventListener('click',addPass);
+  DOM[ID_RESET_BTN].addEventListener('click',resetAddForm);
+  ALGORITHMS.forEach(alg=>{
+    const opt=Kit.celmt('option');
+    opt.value=alg;
+    Kit.setText(opt,alg);
+    if(alg===DEF_ALGORITHM){
+      opt.setAttribute('selected','selected');
     }
-    refreshCountDown(row);
+    DOM[ID_IPT_ALGORITHM].append(opt);
   });
-  setTimeout(updateCountDown,1000-Date.now()%1000);
+  DOM[ID_IPT_PERIOD].setAttribute('min',PERIOD_MIN);
+  DOM[ID_IPT_PERIOD].setAttribute('max',PERIOD_MAX);
+  DOM[ID_IPT_PERIOD].setAttribute('value',DEF_PERIOD);
+  DOM[ID_IPT_PERIOD].addEventListener('input',updateIptPeriodTxt);
+  DOM[ID_IPT_PERIOD_DEC].addEventListener('click',decIptPeriod);
+  DOM[ID_IPT_PERIOD_INC].addEventListener('click',incIptPeriod);
+  DOM[ID_IPT_DIGITS].setAttribute('min',DIGITS_MIN);
+  DOM[ID_IPT_DIGITS].setAttribute('max',DIGITS_MAX);
+  DOM[ID_IPT_DIGITS].setAttribute('value',DEF_DIGITS);
+  DOM[ID_IPT_DIGITS].addEventListener('input',updateIptDigitsTxt);
+  DOM[ID_IPT_DIGITS_DEC].addEventListener('click',decIptDigits);
+  DOM[ID_IPT_DIGITS_INC].addEventListener('click',incIptDigits);
+  updateFormTxt();
 };
-const needGen=row=>{
-  const lastGen=row.dataset['lastGen'];
-  if(!lastGen){
-    return true;
-  }
-  return Date.now()>=(parseInt(lastGen)+parseInt(row.dataset['period']))*1000;
+
+const initHotKeys=()=>{
+  HotKey.reg('v',DOM[ID_SHOW_HIDE_ALL_BTN],()=>DOM[ID_SHOW_HIDE_ALL_BTN].click(),true);
+  HotKey.ignoreOn([DOM[ID_IPT_SECRET],DOM[ID_IPT_APP],DOM[ID_IPT_ACCOUNT],DOM[ID_IPT_ALGORITHM],DOM[ID_IPT_PERIOD],DOM[ID_IPT_DIGITS],DOM[ID_IPT_ISSUER]]);
 };
-const genPasscode=row=>{
-  const ts=Date.now();
-  const row2=row.nextElementSibling;
-  const curPasscodeTxt=row2.querySelector('[data-key="curPasscode"]');
-  const nextPasscodeTxt=row2.querySelector('[data-key="nextPasscode"]');
-  const algorithm=row.dataset['algorithm'];
-  const secret=row.dataset['secret'];
-  const period=parseInt(row.dataset['period']);
-  const digits=parseInt(row.dataset['digits']);
-  const firstGen=!row.dataset['lastGen'];
-  const genTime=Math.floor(ts/1000);
-  const interval=period*1000;
-  row.dataset['lastGen']=genTime-(genTime%period);
-  const curPasscode=firstGen?Totp.gen(algorithm,secret,ts,BASE_TS,interval,digits):nextPasscodeTxt.innerHTML;
-  const nextPasscode=Totp.gen(algorithm,secret,ts+interval,BASE_TS,interval,digits);
-  curPasscodeTxt.innerHTML=curPasscode;
-  nextPasscodeTxt.innerHTML=nextPasscode;
+
+const addInitPasses=()=>INIT_PASSES.forEach(url=>addTotp(Totp.fromOTPURL(url)));
+
+const needGen=row1=>{
+  const lastGen=row1.dataset[KEY_LAST_GEN];
+  return (!lastGen)||Date.now()>=(parseInt(lastGen)+parseInt(row1.dataset[KEY_PERIOD]))*1000;
 };
-const refreshCountDown=row=>{
-  const period=parseInt(row.dataset['period']);
-  const left=period-Math.floor(Date.now()/1000)%period;
-  const row2=row.nextElementSibling;
-  const timer=row2.querySelector('[data-key="timer"]');
-  const curPasscode=row2.querySelector('[data-key="curPasscode"]');
-  timer.innerHTML=`${left}s`;
-  if(left<=5){
-    timer.classList.add('toBeExpire');
-    curPasscode.classList.add('toBeExpire');
-  }else{
-    timer.classList.remove('toBeExpire');
-    curPasscode.classList.remove('toBeExpire');
-  }
+const countDown=()=>{
+  DOM[ID_TOTP_TBL_BODY].querySelectorAll(ckeySelector(CKEY_TOTP_ROW)).forEach(row1=>{
+    needGen(row1)&&genPass(row1);
+    refreshTimer(row1);
+  });
+  setTimeout(countDown,1000-Date.now()%1000);
 };
 
 })();
 </script>
 </head>
 <body>
-<div class="container mainPanel">
+<div class="hbox fixPanel">
+  <button id="showHideAllBtn" type="button" class="bigBtn" data-txt="全部隐藏">全部隐藏</button>
+</div>
+<div class="container mainPanel" style="margin-top:30px;">
   <h2><span id="title"></span><span class="mlm remark">by: <span id="author"></span></span></h2>
   <div><span class="declare">免责声明：本工具仅用于学习研究目的，任何使用本工具造成的影响与后果均由使用者全权负责！</span></div>
   <div class="mts">
-    <details id="addElmtPanel" class="mts mbm">
+    <details class="mbm">
       <summary><h3>添加Password</h3></summary>
-      <form id="addElmtForm" class="iptForm mts mbs">
+      <form id="addForm" class="iptForm mts mbs">
         <div class="vbox alignStart">
-          <div id="errMsgBar" class="hbox mbt" style="display:none;"><span id="errMsg" class="errMsg"></span></div>
+          <div class="hbox mbt"><button id="addBtn" type="button" class="bigBtn mrs">添加</button><button id="resetBtn" type="button" class="bigBtn">重置</button></div>
+          <div id="msgBar" class="hbox mbt" style="display:none;"><span id="msgTxt" class="errMsg"></span></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptSecret"><span class="required">*</span>Secret:</label><input id="iptSecret" type="text" maxlength="1024"/></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptApp">Application:</label><input id="iptApp" type="text" maxlength="255"/></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptAccount">Account:</label><input id="iptAccount" type="text" maxlength="255"/></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptAlgorithm">Algorithm:</label><select id="iptAlgorithm"></select></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptPeriod">Period:</label><button id="iptPeriodDec" type="button">◀</button><input id="iptPeriod" type="range"/><button id="iptPeriodInc" type="button">▶</button><label id="iptPeriodTxt" for="iptPeriod" class="mlt"></label></div>
           <div class="hbox mbt"><label class="formLbl mrt" for="iptDigits">Digits:</label><button id="iptDigitsDec" type="button">◀</button><input id="iptDigits" type="range"/><button id="iptDigitsInc" type="button">▶</button><label id="iptDigitsTxt" for="iptDigits" class="mlt"></label></div>
-          <div class="hbox mbt"><label class="formLbl mrt" for="iptIssuer">Issuer:</label><input id="iptIssuer" type="text" maxlength="255"/></div>
-          <div class="hbox"><button id="addBtn" type="button" class="bigBtn mrs">添加</button><button id="resetBtn" type="button" class="bigBtn">重置</button></div>
+          <div class="hbox"><label class="formLbl mrt" for="iptIssuer">Issuer:</label><input id="iptIssuer" type="text" maxlength="255"/></div>
         </div>
       </form>
     </details>
@@ -677,8 +884,8 @@ const refreshCountDown=row=>{
     </table>
     <table style="display:none;">
       <tbody>
-        <tr id="tmplRow1"><td colspan="2"><div class="hbox"><button type="button" class="actionBtn mrs" title="删除" data-key="delBtn">✖</button><span data-key="title"></span></div></td><td rowspan="2"><div class="vbox"><button type="button" class="actionBtn mbt" title="移到顶部" data-key="toTopBtn">⯭</button><button type="button" class="actionBtn mbt" title="上移" data-key="upBtn">⮝</button><button type="button" class="actionBtn mbt" title="下移" data-key="downBtn">⮟</button><button type="button" class="actionBtn" title="移到底部" data-key="toBottomBtn">⯯</button></div></td></tr>
-        <tr id="tmplRow2"><td><div class="vbox"><span class="mbt" data-key="timer">-</span><span class="passcode" data-key="curPasscode">-</span></div></td><td><div class="vbox"><span class="mbt">Next:</span><span class="passcode" data-key="nextPasscode">-</span></div></td></tr>
+        <tr id="tmplRow1"><td colspan="2"><div class="hbox"><button type="button" class="actionBtn deleteIcon mrt" title="删除" data-ckey="delBtn"></button><button type="button" class="actionBtn eyeCloseIcon mrs" title="隐藏" data-ckey="showHideBtn"></button><span data-ckey="totpTitle"></span></div></td><td rowspan="2"><div class="vbox"><button type="button" class="actionBtn topIcon mbt" title="移到顶部" data-ckey="topBtn"></button><button type="button" class="actionBtn upIcon mbt" title="上移" data-ckey="upBtn"></button><button type="button" class="actionBtn downIcon mbt" title="下移" data-ckey="downBtn"></button><button type="button" class="actionBtn bottomIcon" title="移到底部" data-ckey="bottomBtn"></button></div></td></tr>
+        <tr id="tmplRow2"><td><div class="vbox"><span class="mbt" data-ckey="timer">-</span><span class="passcode" data-ckey="curPass">-</span></div></td><td><div class="vbox"><span class="mbt">Next:</span><span class="passcode" data-ckey="nextPass">-</span></div></td></tr>
       </tbody>
     </table>
   </div>
